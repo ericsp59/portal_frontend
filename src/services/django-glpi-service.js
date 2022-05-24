@@ -1,6 +1,6 @@
 
 
-class GlpiService {
+class DjangoGlpiService {
   getResource = async (url) => {
     let res = await fetch(url)
     if (!res.ok) {
@@ -15,4 +15,4 @@ class GlpiService {
   }
 }
 
-export default GlpiService
+export default DjangoGlpiService

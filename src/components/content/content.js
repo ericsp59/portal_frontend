@@ -1,11 +1,12 @@
 import './content.css'
 import ComputerList from '../computers-list/computers-list';
 
-const Content = ({data,jobTemplateList}) => {
+const Content = ({computerList,ipAddrList,jobTemplateList}) => {
   return (
     <div className='content'>
       <ComputerList
-        data={data}
+        computerList={computerList}
+        ipAddrList={ipAddrList}
         jobTemplateList={jobTemplateList}
       />
     </div>

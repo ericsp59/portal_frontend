@@ -1,16 +1,20 @@
 import './search-panel.css'
 
-const SearchPanel = () => {
+const SearchPanel = (props) => {
+  const {searchString, changeSearchStr} = props
   return (
     <div className="search-panel">
       <form className="navbar-form" role="search">
-  <div className="input-group">
-    <input type="text" autoComplete="off" className="form-control" placeholder="Search" name="search" id="search-input"/>
-        <span className="input-group-btn">
-            <button className="btn" id="srchbtn" type="btn-default">
-                <i className="fa fa-search" aria-hidden="true"></i>
-            </button>
-        </span>
+      <div className="input-group">
+      <input
+        type="text"
+        autoComplete="off"
+        className="form-control"
+        placeholder="Search"
+        name="search"
+        id="search-input"
+        value={searchString}
+        onChange={(e) => changeSearchStr(e.target.value)}/>
     </div>
 </form>
     </div>

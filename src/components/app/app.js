@@ -1,18 +1,12 @@
 import './app.css'
+import Spinner from '../spinner/spinner';
 import AppInfo from '../app-info/app-info'
 import MainNav from '../main-nav/main-nav';
 import Content from '../content/content';
 import SearchPanel from '../search-panel/search-panel';
-import GlpiService from '../../services/glpi-service';
 import AWXService from '../../services/awx-service';
 import { Component } from 'react';
-
-
-// const glpiService = new GlpiService();
-
-// glpiService.getAllComputers()
-//   .then(res => res.forEach(el => console.log(el)))
-
+import Glpi10Service from '../../services/glpi-10-service'
 
 
 class App extends Component{
@@ -23,54 +17,118 @@ class App extends Component{
   }
 
   state = {
-    data: [],
+    glpiData: {
+      computerList: [],
+    },
     awxData: {
       jobTemplateList: []
+    },
+    search: {
+      searchString: ''
+    },
+    app: {
+      loading: true
     }
   }
 
-  glpiService = new GlpiService();
+  // Поиск
+  changeSearchStr = (str) => {
+    this.setState({
+      search:{
+        searchString: str  
+      }  
+    })
+  }
+  
+  searchComp = (items, searchStr) => {
+    if (searchStr.length === 0) {
+      return items
+    }
+
+    return items.filter(item => {
+      return item.name.toLowerCase().indexOf(searchStr.toLowerCase()) > -1
+    })
+  }
+  ///////////
+
+  renameObjKeys = (obj) => {
+    const voc = {
+      1: 'name',
+      2: 'id',
+      5: 'serial',
+      7: 'contact',
+      19: 'date_mod',
+      126: 'ipAddrArr'
+    }
+
+    for (const prop in obj){
+      if (prop in voc){
+        Object.defineProperty(obj, voc[prop],
+          Object.getOwnPropertyDescriptor(obj, prop));
+        delete obj[prop];
+      }
+    }
+    return obj
+  }
+
+  glpi10Service = new Glpi10Service()
+
   getAllComputers = () => {
-    this.glpiService.getAllComputers()
+    this.glpi10Service.getAllComputersSearch()
+      .then(res => {
+        for (let i = 0; i < res.data.length; i++) {
+          const element = res.data[i];
+          this.renameObjKeys(element)
+        }
+        return res.data
+      })
       .then(res => {
         this.setState({
-          data: res  
+          glpiData: {
+            computerList: res,
+          },
+          app: {
+            loading: false
+          }
         })
       })
   }
 
   awxService = new AWXService();
-  getJobTemplateList = () => {
-    console.log('getJobTemplateList start' )  
+  getJobTemplateList = () => { 
     this.awxService.getJobTemplateList()
       .then(res => {
-        console.log('list' )
-        this.setState({
-          awxData:{
-            jobTemplateList: res.results 
-          } 
-        })
+        this.setState(state => ({
+            awxData:{
+              jobTemplateList: res.results 
+            } 
+          }
+        ))
       })
-      .then(() => console.log('getJobTemplateList done' ))  
   }
 
-  // count = data.length
   render() {
-    // console.log(this.state.JobTemplateList)
-    const {data} = this.state
+
+    const {loading} = this.state.app
+    const {searchString} = this.state.search
+    const {computerList} = this.state.glpiData
+    const visibleComputerList = this.searchComp(computerList, searchString)
     const {jobTemplateList} = this.state.awxData
-    const count = data.length
+
     return (
       <div className="app">
         <div className="container-fluid">
           <div className="row">
             <div className="col-sm-12">
-              <AppInfo count={count}/>
+              <AppInfo/>
             </div>
           </div>
           <div className="row">
             <div className="col-sm-12">
-              <SearchPanel/>
+              <SearchPanel
+                searchString = {searchString}
+                changeSearchStr = {this.changeSearchStr}
+              />
             </div>
           </div>
           <div className="row">
@@ -78,10 +136,12 @@ class App extends Component{
               <MainNav/>
             </div>
             <div className="col-sm-10">
-              <Content
-                data = {data}
+
+              {loading ? <Spinner/>
+              :<Content
+                computerList = {visibleComputerList}
                 jobTemplateList = {jobTemplateList}
-              />
+              />}
             </div>
           </div>
           <div className="row">
@@ -91,6 +151,7 @@ class App extends Component{
         
       </div>
     );
+  
   }
 
 

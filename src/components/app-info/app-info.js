@@ -1,10 +1,10 @@
 import './app-info.css'
 
-const AppInfo = ({count}) => {
+const AppInfo = () => {
   return (
     <div className="app-info">
       <h4>Тест API</h4>
-      <h6>Общее кол-во: {count}</h6>
+      <h6>Общее кол-во: </h6>
     </div>
   );
 }

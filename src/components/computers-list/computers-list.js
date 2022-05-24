@@ -1,13 +1,14 @@
 import ComputerListItem from "../computers-list-item/computers-list-item";
 import JobTemplateList from '../job-template-list/job-template-list';
 
-const ComputerList = ({data, jobTemplateList}) => {
-  const elements = data.map(item => {
-    const {id, ...itemProps} = item
-
+const ComputerList = ({computerList, ipAddrList, jobTemplateList}) => {
+  
+  const elements = computerList.map(item => {
+    const {...itemProps} = item
+    
     return(
       <ComputerListItem
-        key = {id}
+        key = {item.id}
         {...itemProps}
       />
     );
