@@ -1,14 +1,25 @@
 import './app.css'
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom' 
+import { Component } from 'react';
 import Spinner from '../spinner/spinner';
 import AppInfo from '../app-info/app-info'
 import MainNav from '../main-nav/main-nav';
 import ErrorBoundary from '../error-boundary/error-boundary';
-import Content from '../content/content';
 import SearchPanel from '../search-panel/search-panel';
 import AWXService from '../../services/awx-service';
-import { Component } from 'react';
 import Glpi10Service from '../../services/glpi-10-service'
 import Error from '../error/error';
+import MainPage from '../pages/main-page/main-page';
+import AutomatizationPage from '../pages/automatization-page/automatization-page';
+import InventoryPage from '../pages/inventory-page/inventory-page';
+import TemplatesPage from '../pages/templates-page/templates-page';
+import ReportsPage from '../pages/reports-page/reports-page';
+import ControlPage from '../pages/control-page/control-page';
+import ComputersInventoryPage from '../pages/computers-inventory-page/computers-inventory-page';
+import PhonesInventoryPage from '../pages/phones-inventory-page/phones-inventory-page';
+import NetworkInventoryPage from '../pages/network-inventory-page/network-inventory-page';
+
+
 
 
 
@@ -34,7 +45,7 @@ class App extends Component{
       isError: false,
       loadMoreButtonIsDisabled: false,
       computersRangeFrom: 0,
-      computersRangeTo: 50,
+      computersRangeTo: 40000,
       computersLoadCount: 10
     }
   }
@@ -120,7 +131,8 @@ class App extends Component{
       5: 'serial',
       7: 'contact',
       19: 'date_mod',
-      126: 'ipAddrArr'
+      126: 'ipAddrArr',
+      3: 'location'
     }
 
     for (const prop in obj){
@@ -136,19 +148,19 @@ class App extends Component{
   glpi10Service = new Glpi10Service()
 
   loadMore = () => {
-    const {computersRangeFrom, computersRangeTo,computersLoadCount} = this.state.app
+    const {computersRangeFrom, computersRangeTo} = this.state.app
     this.setState({
       app: {
         ...this.state.app,
         loading: true
       }
     })
-    this.getAllComputers(computersRangeFrom, computersRangeTo, computersLoadCount)
+    this.getAllComputers(computersRangeFrom, computersRangeTo)
   }
 
 
-  getAllComputers = (computersRangeFrom, computersRangeTo, computersLoadCount) => {
-
+  getAllComputers = (computersRangeFrom, computersRangeTo) => {
+    const {computersLoadCount} = this.state.app.computersLoadCount
     if (computersRangeTo + computersLoadCount > this.state.glpiData.computerListTotalCount &&  this.state.glpiData.computerListTotalCount !== 0) {
       computersRangeTo = this.state.glpiData.computerListTotalCount
       this.setState({
@@ -159,7 +171,7 @@ class App extends Component{
       })
     }
 
-    this.glpi10Service.getAllComputers(computersRangeFrom, computersRangeTo, computersLoadCount)
+    this.glpi10Service.getAllComputers(computersRangeFrom, computersRangeTo)
       .then(res => {
         this.setState(state => ({
           glpiData: {
@@ -190,6 +202,7 @@ class App extends Component{
         return res
       })
       .then(res => {
+        // console.log(res)
         this.setState(state => ({
           glpiData: {
             ...state.glpiData,
@@ -228,9 +241,9 @@ class App extends Component{
   }
 
   componentDidMount() {
-    
-    const {computersRangeFrom, computersRangeTo,computersLoadCount} = this.state.app
-    this.getAllComputers(computersRangeFrom, computersRangeTo, computersLoadCount)
+  
+    const {computersRangeFrom, computersRangeTo} = this.state.app
+    this.getAllComputers(computersRangeFrom, computersRangeTo)
     this.getJobTemplateList()
     this.awxService.clearInventory()
   }
@@ -240,53 +253,99 @@ class App extends Component{
 
     const {loading, isError, loadMoreButtonIsDisabled} = this.state.app
     const {searchString} = this.state.search
-    const {computerList} = this.state.glpiData
+    const {computerList,computerListTotalCount} = this.state.glpiData
     const visibleComputerList = this.searchComp(computerList, searchString)
     const {jobTemplateList} = this.state.awxData
 
     return (
-      <div className="app">
-        <div className="container">
-          <div className="row">
-            <div className="col-sm-12">
-              <AppInfo/>
+      
+      <Router>
+        <div className="app">
+          <div className="container-fluid">
+            <div className="row">
+              <div className="col-sm-12">
+                <AppInfo/>
+              </div>
             </div>
-          </div>
-          <div className="row">
-            <div className="col-sm-12">
-              <SearchPanel
-                searchString = {searchString}
-                changeSearchStr = {this.changeSearchStr}
-              />
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-sm-3">
-              <MainNav/>
-            </div>
-            <div className="col-sm-9">
-
-              {isError ? <Error/> :(loading ? <Spinner/>
-              :
-              <ErrorBoundary>
-                <Content
-                  computerList = {visibleComputerList}
-                  jobTemplateList = {jobTemplateList}
-                  computerItemToggleCheck = {this.computerItemToggleCheck}
-                  loadMore = {this.loadMore}
-                  loadMoreButtonIsDisabled = {loadMoreButtonIsDisabled}
+            <div className="row">
+              <div className="col-sm-12">
+                <SearchPanel
+                  searchString = {searchString}
+                  changeSearchStr = {this.changeSearchStr}
                 />
-              </ErrorBoundary>
-)}
+              </div>
             </div>
+            <div className="row">
+              <div className="col-sm-3">
+                <MainNav/>
+              </div>
+              <div className="col-sm-9">
 
+                <Switch>
+
+                  <Route exact path={'/'}>
+                    <MainPage
+                      computerListTotalCount={computerListTotalCount}
+                    />
+                  </Route>
+
+                  <Route exact path={'/automatization-page'}>
+                    {isError ? <Error/> :(loading ? <Spinner/>
+                    :
+                    <ErrorBoundary>
+                      <AutomatizationPage
+                        computerList = {visibleComputerList}
+                        jobTemplateList = {jobTemplateList}
+                        computerItemToggleCheck = {this.computerItemToggleCheck}
+                        loadMore = {this.loadMore}
+                        loadMoreButtonIsDisabled = {loadMoreButtonIsDisabled}
+                      />
+                    </ErrorBoundary>
+                    )}
+                  </Route>
+
+                  <Route exact path='/inventory-page'>
+                    <InventoryPage/>
+                  </Route>
+
+                  <Route exact path='/computers-inventory-page'>
+                    <ComputersInventoryPage/>
+                  </Route>
+
+                  <Route exact path='/phones-inventory-page'>
+                    <PhonesInventoryPage/>
+                  </Route>
+
+                  <Route exact path='/network-inventory-page'>
+                    <NetworkInventoryPage/>
+                  </Route>
+
+                  <Route exact path='/inventory-page'>
+                    <InventoryPage/>
+                  </Route>
+
+                  <Route exact path='/templates-page'>
+                    <TemplatesPage/>
+                  </Route>
+
+                  <Route exact path='/reports-page'>
+                    <ReportsPage/>
+                  </Route>
+
+                  <Route exact path='/control-page'>
+                    <ControlPage/>
+                  </Route>
+
+                </Switch>
+              </div>
+            </div>
+            <div className="row">
+    
+            </div>
           </div>
-          <div className="row">
-  
-          </div>
+          
         </div>
-        
-      </div>
+      </Router>
     );
   
   }

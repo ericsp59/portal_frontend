@@ -13,7 +13,7 @@ class ComputerListItem extends Component {
   }
 
   render() {
-    const {id, name, serial, contact, date_mod,ipAddrArr,computerItemToggleCheck} = this.props
+    const {id, name, serial, contact, date_mod,ipAddrArr,computerItemToggleCheck,location} = this.props
     // let ipAddrs = []
     // if (typeof ipAddrArr == 'object') {
     //   ipAddrArr.forEach(el => {
@@ -47,6 +47,7 @@ class ComputerListItem extends Component {
         <b>IP: </b>{ipAddrEl} &nbsp;
         <b>Serial:</b> {serial || 'нет'}, &nbsp;
         <b>User:</b> {contact || 'no'}, &nbsp;
+        <b>location:</b> {location || 'no'}, &nbsp;
         {/* <b>date Mod:</b> {date_mod} &nbsp; */}
         </span>
         <a href={"http://glpi.rtkit.local/glpi/front/computer.form.php?id="+id} target="_blank">

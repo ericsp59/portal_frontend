@@ -17,6 +17,7 @@ class Glpi10Service {
   glpiIp='glpi.rtkit.local'
   user_token = 'oaqc8exR5C9CPKgH5ftWezibrvQtWMYUebWphg9Z'
   app_token ='wiHqygFUuTIlwKE6rzlOje1cVjLIpqYUo3mZUjfq'
+  session_token ='rjv1vg29c5gfa9cnp4vrpklvht'
 
 
 ////////////////////////////////////////////////////////  
@@ -33,14 +34,20 @@ class Glpi10Service {
 
   getGlpiSessionToken = async () => {
     const res = await this.getResource(`${this._API_URL}initSession?app_token=${this.app_token}&user_token=${this.user_token}`)
+    console.log(res.session_token)
     return res.session_token
   }
 
   getAllComputers = async (computersRangeFrom, computersRangeTo) => {
-    // console.log(computersRangeFrom, computersRangeTo)
-    const st = await this.getGlpiSessionToken()
 
-    const x =  await this.getResource(`${this._API_URL}search/Computer/?criteria[0][link]=AND&criteria[0][field]=126&criteria[0][searchtype]=contains&criteria[0][value]=&criteria[1][link]=AND&criteria[1][field]=2&criteria[1][searchtype]=contains&criteria[1][value]=&criteria[2][link]=AND&criteria[2][field]=7&criteria[2][searchtype]=contains&criteria[2][value]=&app_token=${this.app_token}&session_token=${st}&range=${computersRangeFrom}-${computersRangeTo-1}`)
+    // const st = await this.getGlpiSessionToken()
+    const st = this.session_token
+
+    const x =  await this.getResource(`${this._API_URL}search/Computer/?
+    criteria[0][link]=AND&criteria[0][field]=126&criteria[0][searchtype]=contains&criteria[0][value]=&
+    criteria[1][link]=AND&criteria[1][field]=2&criteria[1][searchtype]=contains&criteria[1][value]=&criteria[2][link]=AND&criteria[2][field]=7&criteria[2][searchtype]=contains&criteria[2][value]=&
+    criteria[3][field]=3&criteria[3][searchtype]=contains&criteria[3][value]=&
+    app_token=${this.app_token}&session_token=${st}&range=${computersRangeFrom}-${computersRangeTo-1}`)
 
     return(x)
 
