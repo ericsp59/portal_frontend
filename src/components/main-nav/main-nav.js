@@ -6,10 +6,10 @@ const MainNav = () => {
       <h6>Какое-нибудь меню</h6>
       <hr />
       <nav className="nav flex-column">
-        <a className="nav-link active" href="#">Link</a>
-        <a className="nav-link" href="#">Link</a>
-        <a className="nav-link" href="#">Link</a>
-        <a className="nav-link disabled" href="#">Disabled</a>
+        <a className="nav-link active" href="#">Инвентаризация</a>
+        <a className="nav-link" href="#">Шаблоны автоматизации</a>
+        <a className="nav-link" href="#">Автоматизация\Управление</a>
+        <a className="nav-link disabled" href="#">Удаленное управление</a>
       </nav>
     </div>
 

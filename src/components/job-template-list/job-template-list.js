@@ -35,7 +35,7 @@ class JobTemplateList extends Component {
           >{el.name} - {el.id}</a> */}
           <button
             className="dropdown-item"
-            onClick={() => this.awxService.launchJobTemplate(`https://awx-debian11.local/api/v2/job_templates/${el.id}/launch/`)}
+            onClick={() => this.awxService.launchJobTemplate(el.id)}
           >{el.name} - {el.id}</button>
         </li>
       ) 

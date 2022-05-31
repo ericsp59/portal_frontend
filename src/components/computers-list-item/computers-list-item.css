@@ -10,3 +10,7 @@
 p{
   font-size: small;
 }
+
+input {
+  margin-right: 10px;
+}

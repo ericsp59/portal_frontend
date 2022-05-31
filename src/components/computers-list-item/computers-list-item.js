@@ -1,5 +1,7 @@
 import './computers-list-item.css'
 import {Component} from 'react';
+import glpiLogo from '../../img/GLPI_Logo.png'
+import vncLogo from '../../img/vnc.png'
 // import JobTemplateList from '../job-template-list/job-template-list';
 
 class ComputerListItem extends Component {
@@ -11,17 +13,50 @@ class ComputerListItem extends Component {
   }
 
   render() {
-    const {id, name, serial, contact, date_mod,ipAddrArr} = this.props
-    const ip = ipAddrArr.map((el, key) => {
-      if (el !== '127.0.0.1' && el.length > 7 && el.length <= 15 )
-        return <span key = {key}>{el}, </span> 
+    const {id, name, serial, contact, date_mod,ipAddrArr,computerItemToggleCheck} = this.props
+    // let ipAddrs = []
+    // if (typeof ipAddrArr == 'object') {
+    //   ipAddrArr.forEach(el => {
+    //     if (el !== '127.0.0.1' && el.length > 7 && el.length <= 15 ) {
+    //       ipAddrs.push(el)
+    //     }
+    //   });
+    // }
+
+    // if (typeof ipAddrArr == 'string') {
+    //   if (ipAddrArr !== '127.0.0.1' && ipAddrArr.length > 7 && ipAddrArr.length <= 15 )
+    //   ipAddrs.push(ipAddrArr)
+    // }
+    
+
+    // const ipAddrEl = ipAddrs.map(el => {
+    //   return `${el}, `
+    // })
+    const ipAddrEl = ipAddrArr.map(el => {
+      return `${el}, `
     })
+
     return(
     <div className={`${serial ? 'computer-list-item' : 'computer-list-item dark'}`}>
       <p>
+      <input type="checkbox" onChange={(e) => computerItemToggleCheck(e.target.checked, ipAddrArr)}/>
         <i className="fa-solid fa-computer"></i>
-        <b> ID:</b> {id}, <b>Name:</b> {name}, <b>IP: </b>{ip} <b>Serial:</b> {serial || 'no'}, <b>User:</b> {contact || 'no'}, <b>date Mod:</b> {date_mod}
+        <span>
+        <b> ID:</b> {id},&nbsp;  
+        <b>Name:</b> {name}, &nbsp;
+        <b>IP: </b>{ipAddrEl} &nbsp;
+        <b>Serial:</b> {serial || 'нет'}, &nbsp;
+        <b>User:</b> {contact || 'no'}, &nbsp;
+        {/* <b>date Mod:</b> {date_mod} &nbsp; */}
+        </span>
+        <a href={"http://glpi.rtkit.local/glpi/front/computer.form.php?id="+id} target="_blank">
+          <img src={glpiLogo} alt="" height='15px' />
+          </a> &nbsp;
+      <a href="https://ya.ru" target="_blank">
+        <img src={vncLogo} alt="" height='15px'/>
+        </a>
       </p>
+
       {/* <JobTemplateList /> */}
       <hr />
     </div>
