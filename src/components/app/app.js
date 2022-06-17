@@ -4,6 +4,7 @@ import { Component } from 'react';
 import Spinner from '../spinner/spinner';
 import AppInfo from '../app-info/app-info'
 import MainNav from '../main-nav/main-nav';
+import AssetsList from '../assets-list/assets-list'
 import ErrorBoundary from '../error-boundary/error-boundary';
 import SearchPanel from '../search-panel/search-panel';
 import AWXService from '../../services/awx-service';
@@ -22,7 +23,6 @@ import NetworkInventoryPage from '../pages/network-inventory-page/network-invent
 
 
 
-
 class App extends Component{
   // constructor(props){
   //   super(props)
@@ -30,9 +30,13 @@ class App extends Component{
 
   state = {
     glpiData: {
+      selComputersInfoList: [],
       computerList: [],
-      selectedComputerItems:[],
-      computerListTotalCount: 0
+      allComputerList: [],
+      loadingComputerList: false,
+      // selectedComputerItems:[],
+      computerListTotalCount: 0,
+      allComputerListTotalCount: 0,
     },
     awxData: {
       jobTemplateList: []
@@ -41,6 +45,9 @@ class App extends Component{
       searchString: ''
     },
     app: {
+      selectedComputer: 1,
+      selectedComputerIds: [],
+      selectedTemplatesIds: [],
       loading: true,
       isError: false,
       loadMoreButtonIsDisabled: false,
@@ -53,7 +60,8 @@ class App extends Component{
  
 
   //////////////// checkbox computerListItem //////////////
-  computerItemToggleCheck = (checked, ip) =>{    
+  computerItemToggleCheck = (checked, ip) =>{  
+    console.log(ip)  
     if (checked){
       const inventHostList = []
       this.awxService.getInvHostList()
@@ -124,28 +132,225 @@ class App extends Component{
   }
   ///////////
 
-  renameObjKeys = (obj) => {
-    const voc = {
-      1: 'name',
-      2: 'id',
-      5: 'serial',
-      7: 'contact',
-      19: 'date_mod',
-      126: 'ipAddrArr',
-      3: 'location'
-    }
+  // renameObjKeys = (obj) => {
+  //   const voc = {
+  //     1: 'name',
+  //     2: 'id',
+  //     5: 'serial',
+  //     7: 'contact',
+  //     19: 'date_mod',
+  //     126: 'ipAddrArr',
+  //     3: 'location'
+  //   }
 
-    for (const prop in obj){
-      if (prop in voc){
-        Object.defineProperty(obj, voc[prop],
-          Object.getOwnPropertyDescriptor(obj, prop));
-        delete obj[prop];
-      }
-    }
-    return obj
-  }
+  //   for (const prop in obj){
+  //     if (prop in voc){
+  //       Object.defineProperty(obj, voc[prop],
+  //         Object.getOwnPropertyDescriptor(obj, prop));
+  //       delete obj[prop];
+  //     }
+  //   }
+  //   return obj
+  // }
 
   glpi10Service = new Glpi10Service()
+
+  // getCompInfoById = (id) => {
+  //   this.glpi10Service.getCompInfoById(id)
+  //     .then(res => {
+  //       // console.log(res)
+  //       this.setState(state => ({
+  //         glpiData: {
+  //           ...state.glpiData,
+  //           selComputersInfoList: [...state.glpiData.selComputersInfoList, res]
+  //         }
+  //       }))
+  //     })
+  // }
+  // selComputersInfoList
+
+  componentDidUpdate(prevProps, prevState) {
+    // if (prevState.app.selectedComputer !== this.state.app.selectedComputer) {
+    //   this.getCompInfoById(this.state.app.selectedComputer)
+    // }
+    
+  }
+
+
+  selectComputer = (id) => {
+    this.getCompInfoById(id)
+    this.setState({
+      app: {
+        ...this.state.app,
+        selectedComputer: id
+      }
+    }) 
+    // 
+  }
+
+  getCompInfoById = async (id) => {
+    this.glpi10Service.getCompInfoById(id)
+      .then(res => {
+        const linksData = {}
+
+        res.links.forEach(elem => {
+          this.glpi10Service.getResFromLink(elem.href)
+            .then(reslinksData => {
+                res[elem.rel] = [reslinksData]
+            })
+        });
+        // res['linksData'] = linksData
+        // console.log(res)
+        return res
+      })
+      .then(res => {
+        this.setState(state => ({
+            glpiData: {
+            ...state.glpiData,
+            selComputersInfoList: [res]
+            }
+        }))
+      })
+  }
+
+  getComputerIpArr = async (id) => {
+    return await this.glpi10Service.getComputerIpArr(id)
+    .then(res => {  // Фильтруем ip адреса
+      res.forEach(el => {
+        let ipAddrs = []
+        if (typeof el.ipAddrArr === 'string') {
+          el.ipAddrArr = [el.ipAddrArr]
+        }
+        el.ipAddrArr.forEach(ip => {
+          if (ip !== '127.0.0.1' && ip.length > 7 && ip.length < 15 ) {
+            ipAddrs.push(ip)
+          }  
+        });
+        el.ipAddrArr = ipAddrs
+      });
+      return res.length > 0 ? res[0].ipAddrArr : ['']
+      
+    })
+  }
+
+
+  /////////////////////////////
+//   const inventHostList = []
+//   this.awxService.getInvHostList()
+//     .then(res => {
+//       res.forEach(element => {
+//         inventHostList.push(element.name)
+//       });
+//       return res
+//     })
+//     .then((res) => {
+//       ip.forEach(hostIp => {
+//         if (!inventHostList.includes(hostIp)){
+//           this.awxService.addInventoryHostList(hostIp)
+//             .then(() => console.log(`${hostIp} Добавлен`))
+//         }
+//       });
+//     })
+//     .catch((e) => {
+//       console.log(e)
+//     })
+// }
+
+  //////////////////
+
+  runTemplateonSelectedIds = () => {
+    this.awxService.clearInventory()
+      .then(async () => {
+        const {selectedComputerIds, selectedTemplatesIds} = this.state.app
+        // selectedComputerIds.forEach((elem) => {
+          for (const elem of selectedComputerIds) {
+            await this.getComputerIpArr(elem)
+          // }
+          // this.getComputerIpArr(elem)
+            // .then(res => {
+            //   res.forEach((ip) => {
+            //     this.awxService.addInventoryHostList(ip)
+            //     return ip
+            //   })
+            // })
+            .then(async res => {
+              for (const ip of res) {
+                await this.awxService.addInventoryHostList(ip)
+                return ip
+              }
+            })
+            .then((ip) => {console.log('added: ', ip)})
+        }
+      })
+      .then(() => {
+        console.log('run temp', this.state.app.selectedTemplatesIds)
+        console.log('on', this.state.app.selectedComputerIds)
+      })
+      // for (let i = 0; i < selectedComputerIds.length; i++) {
+      //   const id = selectedComputerIds[i];
+      //   this.getComputerIpArr(id)
+      //   .then(res => {
+      //     for (let i = 0; i < res.length; i++) {
+      //       const ip = res[i];
+      //       this.awxService.addInventoryHostList(ip)
+            
+      //     }
+      //   })
+      // }
+
+  }
+
+  setSelectedTemplateIds = (checked, id) => {
+    if (checked) {
+      this.setState(state => ({
+        app: {
+          ...this.state.app,
+          selectedTemplatesIds: [...state.app.selectedTemplatesIds, id]
+        }
+      }))
+    }
+    else {
+      this.setState(state => ({
+        app: {
+          ...this.state.app,
+          selectedTemplatesIds: state.app.selectedTemplatesIds.filter(el => el !== id)
+        }
+      }))  
+    }
+  }
+  
+
+  setSelectedComputerId = (checked, id) => {
+    if (checked) {
+      this.setState(state => ({
+        app: {
+          ...this.state.app,
+          selectedComputerIds: [...state.app.selectedComputerIds, id]
+        }
+      }))
+    }
+    else {
+      this.setState(state => ({
+        app: {
+          ...this.state.app,
+          selectedComputerIds: state.app.selectedComputerIds.filter(el => el !== id)
+        }
+      }))  
+    }
+  }
+
+  getAllComputersList = () => {
+    this.glpi10Service.getAllComputersList()
+      .then(res => {
+        this.setState(state => ({
+          glpiData: {
+            ...state.glpiData,
+            allComputerList: [...state.glpiData.allComputerList, ...res.data],
+            allComputerListTotalCount: res.contentTotalCount
+          },
+        }))
+      })
+  }
 
   loadMore = () => {
     const {computersRangeFrom, computersRangeTo} = this.state.app
@@ -159,72 +364,72 @@ class App extends Component{
   }
 
 
-  getAllComputers = (computersRangeFrom, computersRangeTo) => {
-    const {computersLoadCount} = this.state.app.computersLoadCount
-    if (computersRangeTo + computersLoadCount > this.state.glpiData.computerListTotalCount &&  this.state.glpiData.computerListTotalCount !== 0) {
-      computersRangeTo = this.state.glpiData.computerListTotalCount
-      this.setState({
-        app: {
-          ...this.state.app,
-          loadMoreButtonIsDisabled: true
-        }
-      })
-    }
+  // getAllComputers = (computersRangeFrom, computersRangeTo) => {
+  //   const {computersLoadCount} = this.state.app.computersLoadCount
+  //   if (computersRangeTo + computersLoadCount > this.state.glpiData.computerListTotalCount &&  this.state.glpiData.computerListTotalCount !== 0) {
+  //     computersRangeTo = this.state.glpiData.computerListTotalCount
+  //     this.setState({
+  //       app: {
+  //         ...this.state.app,
+  //         loadMoreButtonIsDisabled: true
+  //       }
+  //     })
+  //   }
 
-    this.glpi10Service.getAllComputers(computersRangeFrom, computersRangeTo)
-      .then(res => {
-        this.setState(state => ({
-          glpiData: {
-            ...state.glpiData,
-            computerListTotalCount: res.totalcount
-          }
-        }))
+  //   this.glpi10Service.getAllComputers(computersRangeFrom, computersRangeTo)
+  //     .then(res => {
+  //       this.setState(state => ({
+  //         glpiData: {
+  //           ...state.glpiData,
+  //           computerListTotalCount: res.totalcount
+  //         }
+  //       }))
         
-        for (let i = 0; i < res.data.length; i++) {
-          const element = res.data[i];
-          this.renameObjKeys(element)
-        }
-        return res.data
-      })
-      .then(res => {  // Фильтруем ip адреса
-        res.forEach(el => {
-          let ipAddrs = []
-          if (typeof el.ipAddrArr === 'string') {
-            el.ipAddrArr = [el.ipAddrArr]
-          }
-          el.ipAddrArr.forEach(ip => {
-            if (ip !== '127.0.0.1' && ip.length > 7 && ip.length <= 15 ) {
-              ipAddrs.push(ip)
-            }  
-          });
-          el.ipAddrArr = ipAddrs
-        });
-        return res
-      })
-      .then(res => {
-        // console.log(res)
-        this.setState(state => ({
-          glpiData: {
-            ...state.glpiData,
-            computerList: [...state.glpiData.computerList, ...res ],
-          },
-          app: {
-            ...state.app,
-            loading: false,
-            computersRangeFrom: computersRangeTo,
-            computersRangeTo: computersRangeTo + computersLoadCount
-          }
-        }))
-      })
-      .catch((e) => {
-        this.setState((state) => ({
-          app: {
-            ...state.app,
-            isError: true
-          }
-        }))
-      })
-  }
+  //       for (let i = 0; i < res.data.length; i++) {
+  //         const element = res.data[i];
+  //         this.renameObjKeys(element)
+  //       }
+  //       return res.data
+  //     })
+      // .then(res => {  // Фильтруем ip адреса
+      //   res.forEach(el => {
+      //     let ipAddrs = []
+      //     if (typeof el.ipAddrArr === 'string') {
+      //       el.ipAddrArr = [el.ipAddrArr]
+      //     }
+      //     el.ipAddrArr.forEach(ip => {
+      //       if (ip !== '127.0.0.1' && ip.length > 7 && ip.length <= 15 ) {
+      //         ipAddrs.push(ip)
+      //       }  
+      //     });
+      //     el.ipAddrArr = ipAddrs
+      //   });
+      //   return res
+      // })
+  //     .then(res => {
+  //       // console.log(res)
+  //       this.setState(state => ({
+  //         glpiData: {
+  //           ...state.glpiData,
+  //           computerList: [...state.glpiData.computerList, ...res ],
+  //         },
+  //         app: {
+  //           ...state.app,
+  //           loading: false,
+  //           computersRangeFrom: computersRangeTo,
+  //           computersRangeTo: computersRangeTo + computersLoadCount
+  //         }
+  //       }))
+  //     })
+  //     .catch((e) => {
+  //       this.setState((state) => ({
+  //         app: {
+  //           ...state.app,
+  //           isError: true
+  //         }
+  //       }))
+  //     })
+  // }
 
   awxService = new AWXService();
   getJobTemplateList = () => { 
@@ -243,20 +448,20 @@ class App extends Component{
   componentDidMount() {
   
     const {computersRangeFrom, computersRangeTo} = this.state.app
-    this.getAllComputers(computersRangeFrom, computersRangeTo)
+    // this.getAllComputers(computersRangeFrom, computersRangeTo)
     this.getJobTemplateList()
-    this.awxService.clearInventory()
+    // this.awxService.clearInventory()
   }
 
 
   render() {
 
-    const {loading, isError, loadMoreButtonIsDisabled} = this.state.app
+    const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer} = this.state.app
     const {searchString} = this.state.search
-    const {computerList,computerListTotalCount} = this.state.glpiData
+    const {computerList, allComputerList, allComputerListTotalCount, selComputersInfoList} = this.state.glpiData
     const visibleComputerList = this.searchComp(computerList, searchString)
     const {jobTemplateList} = this.state.awxData
-
+    
     return (
       
       <Router>
@@ -275,37 +480,55 @@ class App extends Component{
                 />
               </div>
             </div>
+
             <div className="row">
-              <div className="col-sm-3">
+              <div className="col-sm-12">
                 <MainNav/>
               </div>
-              <div className="col-sm-9">
+            </div> 
 
+            <div className="row"> 
+              <div className="col-sm-2">
+                <AssetsList
+                  getAllComputersList={this.getAllComputersList}
+                  allComputerList={allComputerList}
+                  setSelectedComputerId={this.setSelectedComputerId}
+                  selectComputer = {this.selectComputer}
+                />
+              </div> 
+
+              <div className="col-sm-10">
                 <Switch>
 
                   <Route exact path={'/'}>
                     <MainPage
-                      computerListTotalCount={computerListTotalCount}
+                      allComputerListTotalCount={allComputerListTotalCount}
                     />
                   </Route>
 
                   <Route exact path={'/automatization-page'}>
-                    {isError ? <Error/> :(loading ? <Spinner/>
-                    :
+
                     <ErrorBoundary>
                       <AutomatizationPage
-                        computerList = {visibleComputerList}
+                        // computerList = {visibleComputerList}
+                        selectedComputerIds = {selectedComputerIds}
+                        setSelectedTemplateIds = {this.setSelectedTemplateIds}
                         jobTemplateList = {jobTemplateList}
-                        computerItemToggleCheck = {this.computerItemToggleCheck}
-                        loadMore = {this.loadMore}
-                        loadMoreButtonIsDisabled = {loadMoreButtonIsDisabled}
+                        selectedTemplatesIds = {selectedTemplatesIds}
+                        runTemplateonSelectedIds = {this.runTemplateonSelectedIds}
+                        // computerItemToggleCheck = {this.computerItemToggleCheck}
+                        // loadMore = {this.loadMore}
+                        // loadMoreButtonIsDisabled = {loadMoreButtonIsDisabled}
                       />
                     </ErrorBoundary>
-                    )}
                   </Route>
 
                   <Route exact path='/inventory-page'>
-                    <InventoryPage/>
+                    <InventoryPage
+                      // selectedComputerIds = {selectedComputerIds}
+                      selectedComputer = {selectedComputer}
+                      selComputersInfoList = {selComputersInfoList}
+                    />
                   </Route>
 
                   <Route exact path='/computers-inventory-page'>
@@ -325,7 +548,9 @@ class App extends Component{
                   </Route>
 
                   <Route exact path='/templates-page'>
-                    <TemplatesPage/>
+                    <TemplatesPage
+                      jobTemplateList = {jobTemplateList}
+                    />
                   </Route>
 
                   <Route exact path='/reports-page'>

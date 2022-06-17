@@ -4,6 +4,7 @@ import JobTemplateList from '../job-template-list/job-template-list';
 const ComputerList = ({computerList, computerItemToggleCheck, jobTemplateList}) => {
 
   const elements = computerList.map(item => {
+    console.log('comp')
     const {...itemProps} = item
     
     return(

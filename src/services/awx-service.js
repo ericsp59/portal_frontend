@@ -41,18 +41,28 @@ class AWXService {
   }
 
   clearInventory = async () => {
-    this.getInvHostList()
-      .then(res => {
-        res.forEach(element => {
-          this.removeInventoryHost(element.id)
-        });
+    await this.getInvHostList()
+      // .then(res => {
+      //   res.forEach((element) => {
+      //     this.removeInventoryHost(element.id)
+      //       .then(() => {
+      //         console.log('удален', element.id)
+      //       }) 
+      //   });
+      // })
+      .then( async res =>  {
+        for (const element of res) {
+          await this.removeInventoryHost(element.id)
+            .then(() => {
+              console.log('удален', element.id)
+            })
+        }
       })
   }
   
-  getInvHostList = async () => {
-    const res = await this.getResource(`${_API_BASE}inventories/3/hosts/`);
-    // console.log(res)
-    return res.results
+  getInvHostList = async (id=3) => {
+    const res = await this.getResource(`${_API_BASE}inventories/${id}/hosts/`);
+    return await res.results
   }
 
   removeInventoryHost = async (hostId) => {
@@ -63,11 +73,16 @@ class AWXService {
         'mode':'no-cors',
       }
     })
+    // .then (() => console.log('Удален', hostId))
   }
 
-  addInventoryHostList = async (ip) => {
-    // console.log(ip)
-    await fetch(`${_API_BASE}inventories/3/hosts/`, {
+  addInventoryHostList = async (ip, id=3) => {
+    const hostList = await this.getInvHostList()
+    // console.log(hostList)
+    hostList.forEach(el => {
+      if (el.name == ip) return
+    })
+    await fetch(`${_API_BASE}inventories/${id}/hosts/`, {
       method: 'POST',
       body: JSON.stringify( {
         "name": ip,

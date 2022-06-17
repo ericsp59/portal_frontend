@@ -14,24 +14,7 @@ class ComputerListItem extends Component {
 
   render() {
     const {id, name, serial, contact, date_mod,ipAddrArr,computerItemToggleCheck,location} = this.props
-    // let ipAddrs = []
-    // if (typeof ipAddrArr == 'object') {
-    //   ipAddrArr.forEach(el => {
-    //     if (el !== '127.0.0.1' && el.length > 7 && el.length <= 15 ) {
-    //       ipAddrs.push(el)
-    //     }
-    //   });
-    // }
 
-    // if (typeof ipAddrArr == 'string') {
-    //   if (ipAddrArr !== '127.0.0.1' && ipAddrArr.length > 7 && ipAddrArr.length <= 15 )
-    //   ipAddrs.push(ipAddrArr)
-    // }
-    
-
-    // const ipAddrEl = ipAddrs.map(el => {
-    //   return `${el}, `
-    // })
     const ipAddrEl = ipAddrArr.map(el => {
       return `${el}, `
     })

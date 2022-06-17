@@ -3,7 +3,7 @@ import {Component} from 'react'
 class MainPage extends Component {
   
   render (){
-    const {computerListTotalCount} =  this.props
+    const {allComputerListTotalCount} =  this.props
 
     return(
       <>
@@ -20,7 +20,7 @@ class MainPage extends Component {
                 {/* <i className="fa-solid fa-computer"></i> */}
                 <div className="card-body">
                   <h5 className="card-title">Компьютеры</h5>
-                  <h3 className="">{computerListTotalCount}</h3>
+                  <h3 className="">{allComputerListTotalCount}</h3>
                   <a href="#" className="btn btn-primary">Go somewhere</a>
                 </div>
               </div>
