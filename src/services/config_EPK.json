@@ -1,0 +1,10 @@
+{
+"_API_URL" : "http://glpi.epk-opn.local/apirest.php/",
+"glpiIp": "glpi.epk-opn.local",
+"user_token": "4QN0oToo2qjo0Bs7fp23mQjTBMcyEg6DC8yXYcCL",
+"app_token": "kPYtFmngJy06uw9DkkXKYHCkrr8MRLqDKe9WQNPe",
+"session_token": "",
+"semaphore_login": "apier",
+"semaphore_pass": "apier",
+"semaphore_API_BASE": "http://10.200.0.11:3000/api/"
+}

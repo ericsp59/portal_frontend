@@ -8,6 +8,7 @@ import AssetsList from '../assets-list/assets-list'
 import ErrorBoundary from '../error-boundary/error-boundary';
 import SearchPanel from '../search-panel/search-panel';
 import AWXService from '../../services/awx-service';
+import SemaforeService from '../../services/semaphore-service';
 import Glpi10Service from '../../services/glpi-10-service'
 import Error from '../error/error';
 import MainPage from '../pages/main-page/main-page';
@@ -41,13 +42,21 @@ class App extends Component{
     awxData: {
       jobTemplateList: []
     },
+    SemaphoreData: {
+      jobTemplateList: [],
+      keysList: []
+    },
     search: {
       searchString: ''
     },
     app: {
+      glpiSessionToken: '',
+      semaphoreSessionToken: '12',
       selectedComputer: 1,
+      glpiInventory: {},
       selectedComputerIds: [],
       selectedTemplatesIds: [],
+      selectedKeysIds: [],
       loading: true,
       isError: false,
       loadMoreButtonIsDisabled: false,
@@ -58,6 +67,17 @@ class App extends Component{
   }
 
  
+  initGlpiSession = () => {
+    this.glpi10Service.getGlpiSessionToken()
+      .then(res => {
+        this.setState({
+          app: {
+            ...this.state.app,
+            glpiSessionToken: res
+          }
+        })
+      })
+  }
 
   //////////////// checkbox computerListItem //////////////
   computerItemToggleCheck = (checked, ip) =>{  
@@ -189,12 +209,12 @@ class App extends Component{
   }
 
   getCompInfoById = async (id) => {
-    this.glpi10Service.getCompInfoById(id)
+    this.glpi10Service.getCompInfoById(this.state.app.glpiSessionToken, id)
       .then(res => {
         const linksData = {}
 
         res.links.forEach(elem => {
-          this.glpi10Service.getResFromLink(elem.href)
+          this.glpi10Service.getResFromLink(this.state.app.glpiSessionToken, elem.href)
             .then(reslinksData => {
                 res[elem.rel] = [reslinksData]
             })
@@ -214,8 +234,10 @@ class App extends Component{
   }
 
   getComputerIpArr = async (id) => {
-    return await this.glpi10Service.getComputerIpArr(id)
+    return await this.glpi10Service.getComputerIpArr(this.state.app.glpiSessionToken,id)
     .then(res => {  // Фильтруем ip адреса
+      if (res) 
+      {
       res.forEach(el => {
         let ipAddrs = []
         if (typeof el.ipAddrArr === 'string') {
@@ -228,7 +250,9 @@ class App extends Component{
         });
         el.ipAddrArr = ipAddrs
       });
+      // console.log(`getComputerIpArr - ${res}`)
       return res.length > 0 ? res[0].ipAddrArr : ['']
+    }
       
     })
   }
@@ -258,49 +282,84 @@ class App extends Component{
 
   //////////////////
 
-  runTemplateonSelectedIds = () => {
-    this.awxService.clearInventory()
-      .then(async () => {
-        const {selectedComputerIds, selectedTemplatesIds} = this.state.app
-        // selectedComputerIds.forEach((elem) => {
-          for (const elem of selectedComputerIds) {
-            await this.getComputerIpArr(elem)
-          // }
-          // this.getComputerIpArr(elem)
-            // .then(res => {
-            //   res.forEach((ip) => {
-            //     this.awxService.addInventoryHostList(ip)
-            //     return ip
-            //   })
-            // })
-            .then(async res => {
-              for (const ip of res) {
-                await this.awxService.addInventoryHostList(ip)
-                return ip
-              }
-            })
-            .then((ip) => {console.log('added: ', ip)})
+  runSemaphoreTemplate = async () => {
+    const {selectedComputerIds, selectedTemplatesIds, selectedKeysIds} = this.state.app
+    // console.log(selectedComputerIds, selectedTemplatesIds)
+    let ipString = ''
+    for (const elem of selectedComputerIds) {
+      // console.log(elem)
+      await this.getComputerIpArr(elem)
+        .then(async res => {
+          for (const ip of res) {
+            ipString += `${ip}\n`
+          }
+        })
+
+    }
+    this.semaforeService.updateSemaphoreInventory(this.state.app.semaphoreSessionToken, this.state.app.glpiInventory, ipString, selectedKeysIds)
+      .then(async (res) => {
+        if (res.ok) {
+          // console.log('run template', selectedTemplatesIds)
+          for (const id of selectedTemplatesIds) {
+            await this.semaforeService.runSemaphoreTemplate(this.state.app.semaphoreSessionToken, id)
+              .then(x => {
+                console.log(x)
+              })
+          }
         }
       })
-      .then(() => {
-        console.log('run temp', this.state.app.selectedTemplatesIds)
-        console.log('on', this.state.app.selectedComputerIds)
-      })
-      // for (let i = 0; i < selectedComputerIds.length; i++) {
-      //   const id = selectedComputerIds[i];
-      //   this.getComputerIpArr(id)
-      //   .then(res => {
-      //     for (let i = 0; i < res.length; i++) {
-      //       const ip = res[i];
-      //       this.awxService.addInventoryHostList(ip)
-            
-      //     }
-      //   })
-      // }
+  }
 
+  // runTemplateonSelectedIds = () => {
+  //   this.awxService.clearInventory()
+  //     .then(async () => {
+  //       const {selectedComputerIds, selectedTemplatesIds} = this.state.app
+  //       // selectedComputerIds.forEach((elem) => {
+  //         for (const elem of selectedComputerIds) {
+  //           await this.getComputerIpArr(elem)
+  //             .then(async res => {
+  //               for (const ip of res) {
+  //                 await this.awxService.addInventoryHostList(ip)
+  //                 return ip
+  //               }
+  //             })
+  //             .then((ip) => {console.log('added: ', ip)})
+  //       }
+  //     })
+  //     .then(() => {
+  //       if (this.state.app.selectedTemplatesIds !== []) {
+  //         this.state.app.selectedTemplatesIds.forEach(templateId => {
+  //           // console.log(templateId)
+  //           this.awxService.launchJobTemplate(templateId)
+  //         }) 
+  //       }
+
+  //       console.log('on', this.state.app.selectedComputerIds)
+  //     })
+  // }
+
+  setSelectedKeysIds = (checked, id) => {
+    console.log(`keys: ${id}`)
+    if (checked) {
+      this.setState(state => ({
+        app: {
+          ...this.state.app,
+          selectedKeysIds: id
+        }
+      }))
+    }
+    // else {
+    //   this.setState(state => ({
+    //     app: {
+    //       ...this.state.app,
+    //       selectedKeysIds: ''
+    //     }
+    //   }))  
+    // }    
   }
 
   setSelectedTemplateIds = (checked, id) => {
+    console.log(`template: ${id}`)
     if (checked) {
       this.setState(state => ({
         app: {
@@ -340,7 +399,7 @@ class App extends Component{
   }
 
   getAllComputersList = () => {
-    this.glpi10Service.getAllComputersList()
+    this.glpi10Service.getAllComputersList(this.state.app.glpiSessionToken)
       .then(res => {
         this.setState(state => ({
           glpiData: {
@@ -364,103 +423,137 @@ class App extends Component{
   }
 
 
-  // getAllComputers = (computersRangeFrom, computersRangeTo) => {
-  //   const {computersLoadCount} = this.state.app.computersLoadCount
-  //   if (computersRangeTo + computersLoadCount > this.state.glpiData.computerListTotalCount &&  this.state.glpiData.computerListTotalCount !== 0) {
-  //     computersRangeTo = this.state.glpiData.computerListTotalCount
-  //     this.setState({
-  //       app: {
-  //         ...this.state.app,
-  //         loadMoreButtonIsDisabled: true
-  //       }
-  //     })
-  //   }
+  semaforeService = new SemaforeService();
 
-  //   this.glpi10Service.getAllComputers(computersRangeFrom, computersRangeTo)
-  //     .then(res => {
-  //       this.setState(state => ({
-  //         glpiData: {
-  //           ...state.glpiData,
-  //           computerListTotalCount: res.totalcount
-  //         }
-  //       }))
+  semaforeLogin = async () => {
+    let result = await this.semaforeService.login()
+      .then(async (res) => {
+        if (res.ok) {
+          let st = await this.semaforeService.getSemaphoreUserTokens(this.state.app.semaphoreSessionToken)
+            .then(async res => {
+              let i = -1
+              for (let k = 0; k < res.length; k++) {
+                let token = res[k]          
+                if (!token.expired) {
+                  i = k
+                  break
+                }
+              }
+              if (i !== -1) {
+                return (res[i].id)        
+              }
+              else {
+                await this.semaforeService.createSemaphoreApiToken()
+                  .then(res => {
+                    return res.id
+                  })
+              }  
+            })
+            return st
+        }
+        else {
+          console.log('login bad')
+        }
         
-  //       for (let i = 0; i < res.data.length; i++) {
-  //         const element = res.data[i];
-  //         this.renameObjKeys(element)
-  //       }
-  //       return res.data
-  //     })
-      // .then(res => {  // Фильтруем ip адреса
-      //   res.forEach(el => {
-      //     let ipAddrs = []
-      //     if (typeof el.ipAddrArr === 'string') {
-      //       el.ipAddrArr = [el.ipAddrArr]
-      //     }
-      //     el.ipAddrArr.forEach(ip => {
-      //       if (ip !== '127.0.0.1' && ip.length > 7 && ip.length <= 15 ) {
-      //         ipAddrs.push(ip)
-      //       }  
-      //     });
-      //     el.ipAddrArr = ipAddrs
-      //   });
-      //   return res
-      // })
+      })
+      .then(st => {
+        this.setState({
+          app: {
+            ...this.state.app,
+            semaphoreSessionToken: st
+          }
+        })
+        return st
+      })
+      return result
+  }
+
+  getSemaphoreKeysList = async () => {
+    this.semaforeService.getSemaphoreKeys()
+      .then(res => {
+        this.setState({
+          SemaphoreData: {
+            ...this.state.SemaphoreData,
+            keysList: res
+          }
+        })
+      })
+  }
+
+  getSemaforeTemplateList = (res) => {
+    console.log(res)
+    this.semaforeService.getSemaphoreTemplates(res)
+    .then(res => {
+      // console.log(res.results.filter(el => el.inventory === 3))
+      this.setState(state => ({
+          SemaphoreData:{
+            ...this.state.SemaphoreData,
+            jobTemplateList: res
+          } 
+        }
+      ))
+    })
+  }
+
+  getSemaphoreInventory = (st) => {
+    this.semaforeService.getSemaphoreInventory(st)
+      .then(res => {
+        if (res != []) {
+          // console.log(res.filter(el => el.name === 'portal_inventory')[0])
+          this.setState({
+            app: {
+              ...this.state.app,
+              glpiInventory: res.filter(el => el.name === 'portal_inventory')[0]
+            }
+          })
+        }
+      })
+  }
+
+  // awxService = new AWXService();
+  // getJobTemplateList = () => { 
+  //   this.awxService.getJobTemplateList()
   //     .then(res => {
-  //       // console.log(res)
+  //       // console.log(res.results.filter(el => el.inventory === 3))
   //       this.setState(state => ({
-  //         glpiData: {
-  //           ...state.glpiData,
-  //           computerList: [...state.glpiData.computerList, ...res ],
-  //         },
-  //         app: {
-  //           ...state.app,
-  //           loading: false,
-  //           computersRangeFrom: computersRangeTo,
-  //           computersRangeTo: computersRangeTo + computersLoadCount
+  //           awxData:{
+  //             jobTemplateList: res.results.filter(el => el.inventory === 3)
+  //           } 
   //         }
-  //       }))
-  //     })
-  //     .catch((e) => {
-  //       this.setState((state) => ({
-  //         app: {
-  //           ...state.app,
-  //           isError: true
-  //         }
-  //       }))
+  //       ))
   //     })
   // }
 
-  awxService = new AWXService();
-  getJobTemplateList = () => { 
-    this.awxService.getJobTemplateList()
-      .then(res => {
-        // console.log(res.results.filter(el => el.inventory === 3))
-        this.setState(state => ({
-            awxData:{
-              jobTemplateList: res.results.filter(el => el.inventory === 3)
-            } 
-          }
-        ))
+  loginAndGetTemplates = async () => {
+    this.semaforeLogin()
+      .then((res) => {
+        console.log(res)
+        // this.getSemaforeTemplateList()
       })
   }
 
   componentDidMount() {
-  
-    const {computersRangeFrom, computersRangeTo} = this.state.app
-    // this.getAllComputers(computersRangeFrom, computersRangeTo)
-    this.getJobTemplateList()
-    // this.awxService.clearInventory()
+    this.initGlpiSession()
+    this.semaforeLogin()
+      .then((res) => {
+        this.getSemaforeTemplateList(res)
+        this.getSemaphoreKeysList(res)
+        this.getSemaphoreInventory(res)
+      })
+    
+    // this.loginAndGetTemplates()
+
+    
   }
 
 
   render() {
-
-    const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer} = this.state.app
+    const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer, glpiSessionToken} = this.state.app
     const {searchString} = this.state.search
     const {computerList, allComputerList, allComputerListTotalCount, selComputersInfoList} = this.state.glpiData
     const visibleComputerList = this.searchComp(computerList, searchString)
-    const {jobTemplateList} = this.state.awxData
+    const {jobTemplateList, keysList} = this.state.SemaphoreData
+
     
     return (
       
@@ -491,7 +584,8 @@ class App extends Component{
               <div className="col-sm-2">
                 <AssetsList
                   getAllComputersList={this.getAllComputersList}
-                  allComputerList={allComputerList}
+                  allComputerList={this.searchComp(allComputerList, searchString)}
+                  // allComputerList={allComputerList}
                   setSelectedComputerId={this.setSelectedComputerId}
                   selectComputer = {this.selectComputer}
                 />
@@ -510,15 +604,15 @@ class App extends Component{
 
                     <ErrorBoundary>
                       <AutomatizationPage
-                        // computerList = {visibleComputerList}
+                        keysList = {keysList}
                         selectedComputerIds = {selectedComputerIds}
                         setSelectedTemplateIds = {this.setSelectedTemplateIds}
+                        setSelectedKeysIds = {this.setSelectedKeysIds} 
                         jobTemplateList = {jobTemplateList}
                         selectedTemplatesIds = {selectedTemplatesIds}
-                        runTemplateonSelectedIds = {this.runTemplateonSelectedIds}
-                        // computerItemToggleCheck = {this.computerItemToggleCheck}
-                        // loadMore = {this.loadMore}
-                        // loadMoreButtonIsDisabled = {loadMoreButtonIsDisabled}
+                        runSemaphoreTemplate = {this.runSemaphoreTemplate}
+                        semaforeLogin = {this.semaforeLogin}
+                        
                       />
                     </ErrorBoundary>
                   </Route>
@@ -528,6 +622,8 @@ class App extends Component{
                       // selectedComputerIds = {selectedComputerIds}
                       selectedComputer = {selectedComputer}
                       selComputersInfoList = {selComputersInfoList}
+                      getComputerIpArr = {this.getComputerIpArr}
+                      st = {glpiSessionToken}
                     />
                   </Route>
 

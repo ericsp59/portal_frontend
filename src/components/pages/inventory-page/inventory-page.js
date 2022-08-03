@@ -5,77 +5,100 @@ import AllComputersListItem from '../../all-computers-list-item/all-computers-li
 
 class InventoryPage extends Component {
 
-  // constructor(props) {
-  //   super(props)
-  //   this.getCompInfoById(this.props.selectedComputer)
-  // }
+  constructor(props) {
+    super(props)
+    // this.getCompInfoById(this.props.selectedComputer)
+  }
 
-  // state = {
-  //   selComputersInfoList: [],
-  // }
+  state = {
+    selComputersInfoList: [],
+    computersInfoListIsLoaded: false,
+    ipAddresses: []
+  }
 
   glpi10Service = new Glpi10Service()
 
   // getCompInfoById = (id) => {
-  //   console.log('get')
-  //   this.glpi10Service.getCompInfoById(id)
-  //     .then(res => {
-  //       const linksData = {}
+  //   // this.props.getComputerIpArr(id)
+  //   //   .then(res => {
+  //   //     this.setState(state => ({
+  //   //       ...state,
+  //   //       ipAddresses: res
+  //   //     }))
+  //   //   })  
 
-  //       res.links.forEach(elem => {
-  //         this.glpi10Service.getResFromLink(elem.href)
+
+  //   this.glpi10Service.getCompInfoById(id)
+  //     .then(async res => {
+  //       for (const elem of res.links) {
+  //         await this.glpi10Service.getResFromLink(this.props.st, elem.href)
   //           .then(reslinksData => {
+  //             // if (reslinksData.length > 0){
+  //               // console.log(reslinksData)
   //               res[elem.rel] = [reslinksData]
+  //             // } 
   //           })
-  //       });
-  //       // res['linksData'] = linksData
+  //       }
   //       // console.log(res)
   //       return res
   //     })
   //     .then(res => {
+  //       // console.log(res)
   //       this.setState(state => ({
   //         ...state,
-  //         selComputersInfoList: [res]
-  //       }))
+  //         selComputersInfoList: [res],
+  //         computersInfoListIsLoaded: true
+  //       }), () => console.log(this.state.selComputersInfoList))
   //     })
   // }
 
-  componentDidMount(){
+  getSerchComputerInfoById = (id) => {
+    
+    this.glpi10Service.getSerchComputerInfoById(this.props.st, id)
+      .then(res => {
+        let arr = res.data.map(el => this.glpi10Service.renameObjKeys(el))
+        if (arr.length > 0) {
+          // console.log(arr)
+          // return arr
+          this.setState(state => ({
+            ...state,
+            selComputersInfoList: arr,
+            computersInfoListIsLoaded: true
+          }))
+        }
+
+      })
   }
 
-  // componentDidUpdate(prevProps, prevState){
-    
-  //   if (prevProps !== this.props) {
-  //   // if (prevState !== this.state) {
-  //     // this.setState({
-  //     //   selComputersInfoList: []
-  //     // })
+  componentDidMount(){
+    // this.getSerchComputerInfoById(this.props.selectedComputer)
+  }
 
-  //     // this.props.selectedComputerIds.forEach(element => {
-  //     //   this.getCompInfoById(element)
-  //     // });
-  //     // console.log(this.props)
-  //     // this.getCompInfoById(this.props.selectedComputer)
-  //   }
-  // }
+  componentDidUpdate(prevProps, prevState){
+    if (prevProps.selectedComputer !== this.props.selectedComputer) {
+      // this.getCompInfoById(this.props.selectedComputer)
+      this.getSerchComputerInfoById(this.props.selectedComputer)
+    }
+  }
   
   render() {
-      const elements = this.props.selComputersInfoList.map(elem => {
+      console.log(this.state)
+      const elements = this.state.selComputersInfoList.map(elem => {
         const {...itemProps} = elem
         return (
-            
-            <div className="allComputersListItem" key={elem.id}>
-              <AllComputersListItem
-                {...itemProps}
-                linksData = {elem}
-              /> 
-            </div>
+          <div className="allComputersListItem" key={elem.id}>
+            <AllComputersListItem
+              {...itemProps}
+              computersInfoListIsLoaded = {this.state.computersInfoListIsLoaded}
+            /> 
+          </div>
+
         )
       })
       
     return (
       <>
-        {elements}
+        {this.state.computersInfoListIsLoaded ? elements : 'LOADING'}
       </>
     )
   }
