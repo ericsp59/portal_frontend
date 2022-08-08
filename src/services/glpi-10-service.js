@@ -116,6 +116,21 @@ class Glpi10Service {
         return res.data
       }
   }
+  
+  getComputerIpArr = async (st,id) => {
+      const res = await this.getOneResource(`${this._API_URL}search/Computer?
+      criteria[0][link]=AND&criteria[0][field]=126&criteria[0][searchtype]=contains&criteria[0][value]=&
+      criteria[1][link]=AND&criteria[1][field]=2&criteria[1][searchtype]=contains&criteria[1][value]=${id}&app_token=${this.app_token}&session_token=${st}`)
+      if (res.data) {
+        for (let i = 0; i < res.data.length; i++) {
+          const element = res.data[i];
+          this.renameObjKeys(element)
+        }
+        return res.data
+      }
+  }
+
+
 
   // getAllComputers = async (st,computersRangeFrom=0, computersRangeTo=1000) => {
   //   const x =  await this.getResource(`${this._API_URL}search/Computer?

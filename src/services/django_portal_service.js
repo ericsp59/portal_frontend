@@ -11,10 +11,25 @@ class DjangoPortalService {
     if (!res.ok) {
       throw new Error(`Could not fetch ${url}, status: ${res.status}`)
     }
-
     return await res.json()
   }
 
+  addPlaybookFileToGit = async (file) => {
+   
+    // http://127.0.0.1:8000/api/v1/add_playbook/
+    await fetch(`${_API_BASE}add_playbook/`, {
+      method: 'POST',
+      headers: {
+        // 'mode':'no-cors',
+        'Content-Disposition': `attachment; filename=${file.name}`,
+        // 'Content-Disposition': 'attachment; filename=upload.txt',
+        'Content-Type': 'text/plain; charset=utf-8'
+      },
+      // body: data
+      body:  file,
+      
+    })
+  }
 
   addRunTemplateJobToLogs = async (job_template_name, job_template_keys) => {
     await fetch(`${_API_BASE}log_list/`, {

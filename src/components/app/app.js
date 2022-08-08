@@ -50,6 +50,7 @@ class App extends Component{
       searchString: ''
     },
     app: {
+      selectedPlaybookFile: {},
       glpiSessionToken: '',
       semaphoreSessionToken: '12',
       selectedComputer: 1,
@@ -174,6 +175,22 @@ class App extends Component{
   // }
 
   djangoPortalService = new DjangoPortalService()
+
+
+
+  changeSelectedPlaybookFile = (file) => {
+    // console.log(file)
+    this.setState({
+      app: {
+        ...this.state.app,
+        selectedPlaybookFile: file
+      }
+    })
+  }
+
+  addPlaybookHandler = () => {
+    this.djangoPortalService.addPlaybookFileToGit(this.state.app.selectedPlaybookFile)
+  }
 
   glpi10Service = new Glpi10Service()
 
@@ -652,6 +669,8 @@ class App extends Component{
                   <Route exact path='/templates-page'>
                     <TemplatesPage
                       jobTemplateList = {jobTemplateList}
+                      addPlaybookHandler = {this.addPlaybookHandler}
+                      changeSelectedPlaybookFile = {this.changeSelectedPlaybookFile}
                     />
                   </Route>
 
