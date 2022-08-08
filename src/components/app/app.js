@@ -7,7 +7,7 @@ import MainNav from '../main-nav/main-nav';
 import AssetsList from '../assets-list/assets-list'
 import ErrorBoundary from '../error-boundary/error-boundary';
 import SearchPanel from '../search-panel/search-panel';
-import AWXService from '../../services/awx-service';
+import DjangoPortalService from '../../services/django_portal_service';
 import SemaforeService from '../../services/semaphore-service';
 import Glpi10Service from '../../services/glpi-10-service'
 import Error from '../error/error';
@@ -173,6 +173,8 @@ class App extends Component{
   //   return obj
   // }
 
+  djangoPortalService = new DjangoPortalService()
+
   glpi10Service = new Glpi10Service()
 
   // getCompInfoById = (id) => {
@@ -301,9 +303,13 @@ class App extends Component{
         if (res.ok) {
           // console.log('run template', selectedTemplatesIds)
           for (const id of selectedTemplatesIds) {
+            
             await this.semaforeService.runSemaphoreTemplate(this.state.app.semaphoreSessionToken, id)
               .then(x => {
-                console.log(x)
+                // console.log(x)
+                // console.log(selectedKeysIds)
+                this.djangoPortalService.addRunTemplateJobToLogs(id, selectedKeysIds)
+                console.log(selectedKeysIds, id)
               })
           }
         }

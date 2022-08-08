@@ -16,7 +16,14 @@ class SemaphoreService {
 
 
   getSemaphoreKeys = async () => {
-    let res = await fetch(`${_API_BASE}project/1/keys`)
+    let res = await fetch(`${_API_BASE}project/1/keys`, {
+      headers: {
+        'mode':'no-cors',
+        // 'Authorization': `Bearer ${st}`
+        // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
+        'Authorization': 'Bearer lxp95vn5an7spmw-y0ckvo13qa2irdywagansutyzde='
+      },  
+    })
     return await res.json()
   }
 
