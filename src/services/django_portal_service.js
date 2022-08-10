@@ -23,7 +23,7 @@ class DjangoPortalService {
         // 'mode':'no-cors',
         'Content-Disposition': `attachment; filename=${file.name}`,
         // 'Content-Disposition': 'attachment; filename=upload.txt',
-        'Content-Type': 'text/plain; charset=utf-8'
+        // 'Content-Type': 'text/plain; charset=utf-8'
       },
       // body: data
       body:  file,
