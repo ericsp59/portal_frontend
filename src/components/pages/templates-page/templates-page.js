@@ -19,9 +19,12 @@ class TemplatesPage extends Component {
               <h5 className="card-title">{name}</h5>
               <p className="card-text">ID: {id}</p>
               <p className="card-text">{playbook}</p>
+
+            </div>
+            <div className="card-footer">
               <button className='btn btn-danger'
-                onClick={() => deleteTemplate(id)}
-              >Удалить</button>
+                  onClick={() => deleteTemplate(id)}
+                >Удалить</button>
             </div>
           </div>
         // </>
