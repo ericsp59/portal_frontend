@@ -39,9 +39,9 @@ class App extends Component{
       computerListTotalCount: 0,
       allComputerListTotalCount: 0,
     },
-    awxData: {
-      jobTemplateList: []
-    },
+    // awxData: {
+    //   jobTemplateList: []
+    // },
     SemaphoreData: {
       jobTemplateList: [],
       keysList: []
@@ -50,6 +50,7 @@ class App extends Component{
       searchString: ''
     },
     app: {
+      newTemplateName: '',
       selectedPlaybookFile: {},
       glpiSessionToken: '',
       semaphoreSessionToken: '12',
@@ -176,7 +177,14 @@ class App extends Component{
 
   djangoPortalService = new DjangoPortalService()
 
-
+  changeInputNewTemplateName = (templateName) => {
+    this.setState({
+      app: {
+        ...this.state.app,
+        newTemplateName: templateName
+      }
+    })
+  }
 
   changeSelectedPlaybookFile = (file) => {
     // console.log(file)
@@ -190,6 +198,17 @@ class App extends Component{
 
   addPlaybookHandler = () => {
     this.djangoPortalService.addPlaybookFileToGit(this.state.app.selectedPlaybookFile)
+     .then(res => {
+      if (res.post == 'ok'){
+        this.semaforeService.createSemaphoreTemplate(this.state.app.newTemplateName, res.name)
+          .then(res => {
+            this.getSemaforeTemplateList()
+            // console.log(res)
+          })
+      }
+      // console.log(res)
+      // console.log(this.state.app)
+     })
   }
 
   glpi10Service = new Glpi10Service()
@@ -503,8 +522,15 @@ class App extends Component{
       })
   }
 
+  deleteSemaphoreTemplate = (id) => {
+    this.semaforeService.deleteSemaphoreTemplate(id)
+      .then(res => {
+        console.log(res)
+        this.getSemaforeTemplateList()
+      })
+  }
+
   getSemaforeTemplateList = (res) => {
-    console.log(res)
     this.semaforeService.getSemaphoreTemplates(res)
     .then(res => {
       // console.log(res.results.filter(el => el.inventory === 3))
@@ -571,7 +597,7 @@ class App extends Component{
 
 
   render() {
-    const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer, glpiSessionToken} = this.state.app
+    const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer, glpiSessionToken, newTemplateName} = this.state.app
     const {searchString} = this.state.search
     const {computerList, allComputerList, allComputerListTotalCount, selComputersInfoList} = this.state.glpiData
     const visibleComputerList = this.searchComp(computerList, searchString)
@@ -671,6 +697,9 @@ class App extends Component{
                       jobTemplateList = {jobTemplateList}
                       addPlaybookHandler = {this.addPlaybookHandler}
                       changeSelectedPlaybookFile = {this.changeSelectedPlaybookFile}
+                      deleteTemplate = {this.deleteSemaphoreTemplate}
+                      newTemplateName = {newTemplateName}
+                      changeInputNewTemplateName = {this.changeInputNewTemplateName}
                     />
                   </Route>
 

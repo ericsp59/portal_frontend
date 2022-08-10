@@ -7,18 +7,21 @@ class TemplatesPage extends Component {
 
   render() {
 
-    const {jobTemplateList, addPlaybookHandler, changeSelectedPlaybookFile} = this.props
+    const {jobTemplateList, addPlaybookHandler, changeSelectedPlaybookFile, deleteTemplate, newTemplateName, changeInputNewTemplateName} = this.props
 
 
     const elements = jobTemplateList.map(elem => {
       const {id,name,playbook} = elem
       return (
         // <>
-          <div key={id} className="card text-center border-dark mb-3" style={{"width": "18rem"}}>
+          <div key={id} className="card text-center border-dark sm-3" style={{"width": "18rem"}}>
             <div className="card-body">
               <h5 className="card-title">{name}</h5>
               <p className="card-text">ID: {id}</p>
-              <p className="card-text">playbook: {playbook}</p>
+              <p className="card-text">{playbook}</p>
+              <button className='btn btn-danger'
+                onClick={() => deleteTemplate(id)}
+              >Удалить</button>
             </div>
           </div>
         // </>
@@ -29,7 +32,15 @@ class TemplatesPage extends Component {
       <>
         <div>
         {/* <form> */}
+          <h4>Создать шаблон</h4>
           <div className="form-group">
+            <label htmlFor="inputPlaybookName">Введите имя</label>
+            <input 
+              className="form-control .form-control-sm"
+              type="text" id="inputPlaybookName"
+              value={newTemplateName}
+              onChange={(e) => changeInputNewTemplateName(e.target.value)}
+            />
             <label htmlFor="inputPlaybookFile">Выберите playbook</label>
             <input
               type="file"
@@ -48,7 +59,7 @@ class TemplatesPage extends Component {
           <button
             className="btn btn-primary"
             onClick={() => addPlaybookHandler('addPlaybookHandler')}
-          >Добавить playbook
+          >Добавить Шаблон
           
           </button>
         {/* </form> */}

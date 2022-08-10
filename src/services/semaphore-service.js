@@ -14,6 +14,42 @@ class SemaphoreService {
   semaphore_login = 'apier'
   semaphore_pass = 'apier'
 
+  deleteSemaphoreTemplate = async (id) => {
+    let res = await fetch(`${_API_BASE}project/1/templates/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'mode':'no-cors',
+        // 'Authorization': `Bearer ${st}`
+        // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
+        'Authorization': 'Bearer lxp95vn5an7spmw-y0ckvo13qa2irdywagansutyzde='
+      },
+    })
+    return res
+  }
+
+  createSemaphoreTemplate = async (TemplateName, playbookName) => {
+    let res = await fetch(`${_API_BASE}project/1/templates`, {
+      method: 'POST',
+      headers: {
+        'mode':'no-cors',
+        // 'Authorization': `Bearer ${st}`
+        // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
+        'Authorization': 'Bearer lxp95vn5an7spmw-y0ckvo13qa2irdywagansutyzde='
+      },
+      body: JSON.stringify({
+        "project_id": 1,
+        "inventory_id": 1,
+        "repository_id": 1,
+        "environment_id": 1,
+        "name": TemplateName,
+        "playbook": `playbooks/${playbookName}`,
+        "arguments": "[]",
+        "override_args": true
+      })
+    })
+    return await res.json()
+  }
+
 
   getSemaphoreKeys = async () => {
     let res = await fetch(`${_API_BASE}project/1/keys`, {
@@ -85,7 +121,8 @@ class SemaphoreService {
         "inventory": ipAddresses,
         // "ssh_key_id": inventory["ssh_key_id"],
         "ssh_key_id": selectedKeysIds,
-        "become_key_id": inventory["become_key_id"],
+        "become_key_id": selectedKeysIds,
+        // "become_key_id": inventory["become_key_id"],
         "type": inventory["type"]
       })
     })

@@ -17,7 +17,7 @@ class DjangoPortalService {
   addPlaybookFileToGit = async (file) => {
    
     // http://127.0.0.1:8000/api/v1/add_playbook/
-    await fetch(`${_API_BASE}add_playbook/`, {
+    let res = await fetch(`${_API_BASE}add_playbook/`, {
       method: 'POST',
       headers: {
         // 'mode':'no-cors',
@@ -27,8 +27,8 @@ class DjangoPortalService {
       },
       // body: data
       body:  file,
-      
     })
+    return await res.json()
   }
 
   addRunTemplateJobToLogs = async (job_template_name, job_template_keys) => {
