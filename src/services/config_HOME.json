@@ -7,6 +7,6 @@
 "semaphore_login": "apier",
 "semaphore_pass": "apier",
 "semaphore_API_BASE": "http://semaphore.home.loc/api/",
-"django_portal_API_BASE": "http://portal.home.loc/api/v1/"
+"django_portal_API_BASE": "http://127.0.0.1:8000/api/v1/"
 }
 

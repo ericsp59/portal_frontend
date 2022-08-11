@@ -1,4 +1,5 @@
 import './app.css'
+// import state from '../../red/state';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom' 
 import { Component } from 'react';
 import Spinner from '../spinner/spinner';
@@ -25,48 +26,8 @@ import NetworkInventoryPage from '../pages/network-inventory-page/network-invent
 
 
 class App extends Component{
-  // constructor(props){
-  //   super(props)
-  // }
-
-  state = {
-    glpiData: {
-      selComputersInfoList: [],
-      computerList: [],
-      allComputerList: [],
-      loadingComputerList: false,
-      // selectedComputerItems:[],
-      computerListTotalCount: 0,
-      allComputerListTotalCount: 0,
-    },
-    // awxData: {
-    //   jobTemplateList: []
-    // },
-    SemaphoreData: {
-      jobTemplateList: [],
-      keysList: []
-    },
-    search: {
-      searchString: ''
-    },
-    app: {
-      newTemplateName: '',
-      selectedPlaybookFile: {},
-      glpiSessionToken: '',
-      semaphoreSessionToken: '12',
-      selectedComputer: 1,
-      glpiInventory: {},
-      selectedComputerIds: [],
-      selectedTemplatesIds: [],
-      selectedKeysIds: [],
-      loading: true,
-      isError: false,
-      loadMoreButtonIsDisabled: false,
-      computersRangeFrom: 0,
-      computersRangeTo: 40000,
-      computersLoadCount: 10
-    }
-  }
+  
+  state = this.props.state
 
  
   initGlpiSession = () => {
@@ -597,7 +558,7 @@ class App extends Component{
 
 
   render() {
-    const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer, glpiSessionToken, newTemplateName} = this.state.app
+    const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer, glpiSessionToken, newTemplateName, baseDir} = this.state.app
     const {searchString} = this.state.search
     const {computerList, allComputerList, allComputerListTotalCount, selComputersInfoList} = this.state.glpiData
     const visibleComputerList = this.searchComp(computerList, searchString)
@@ -625,7 +586,7 @@ class App extends Component{
 
             <div className="row">
               <div className="col-sm-12">
-                <MainNav/>
+                <MainNav baseDir={baseDir}/>
               </div>
             </div> 
 
@@ -643,13 +604,13 @@ class App extends Component{
               <div className="col-sm-10">
                 <Switch>
 
-                  <Route exact path={'/'}>
+                  <Route exact path={baseDir}>
                     <MainPage
                       allComputerListTotalCount={allComputerListTotalCount}
                     />
                   </Route>
 
-                  <Route exact path={'/automatization-page'}>
+                  <Route exact path={`${baseDir}automatization-page`}>
 
                     <ErrorBoundary>
                       <AutomatizationPage
@@ -661,12 +622,11 @@ class App extends Component{
                         selectedTemplatesIds = {selectedTemplatesIds}
                         runSemaphoreTemplate = {this.runSemaphoreTemplate}
                         semaforeLogin = {this.semaforeLogin}
-                        
                       />
                     </ErrorBoundary>
                   </Route>
 
-                  <Route exact path='/inventory-page'>
+                  <Route exact path={`${baseDir}inventory-page`}>
                     <InventoryPage
                       // selectedComputerIds = {selectedComputerIds}
                       selectedComputer = {selectedComputer}
@@ -676,23 +636,23 @@ class App extends Component{
                     />
                   </Route>
 
-                  <Route exact path='/computers-inventory-page'>
+                  <Route exact path={`${baseDir}computers-inventory-page`}>
                     <ComputersInventoryPage/>
                   </Route>
 
-                  <Route exact path='/phones-inventory-page'>
+                  <Route exact path={`${baseDir}phones-inventory-page`}>
                     <PhonesInventoryPage/>
                   </Route>
 
-                  <Route exact path='/network-inventory-page'>
+                  <Route exact path={`${baseDir}network-inventory-page`}>
                     <NetworkInventoryPage/>
                   </Route>
 
-                  <Route exact path='/inventory-page'>
+                  <Route exact path={`${baseDir}inventory-page`}>
                     <InventoryPage/>
                   </Route>
 
-                  <Route exact path='/templates-page'>
+                  <Route exact path={`${baseDir}templates-page`}>
                     <TemplatesPage
                       jobTemplateList = {jobTemplateList}
                       addPlaybookHandler = {this.addPlaybookHandler}
@@ -703,11 +663,11 @@ class App extends Component{
                     />
                   </Route>
 
-                  <Route exact path='/reports-page'>
+                  <Route exact path={`${baseDir}reports-page`}>
                     <ReportsPage/>
                   </Route>
 
-                  <Route exact path='/control-page'>
+                  <Route exact path={`${baseDir}control-page`}>
                     <ControlPage/>
                   </Route>
 
