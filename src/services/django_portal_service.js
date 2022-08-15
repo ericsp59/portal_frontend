@@ -5,6 +5,27 @@ import Config from "./config_HOME.json";
 const _API_BASE = Config.django_portal_API_BASE
 
 class DjangoPortalService {
+
+  // djangoLoginUser = async (e) => {
+  //   e.preventDefault()
+  //   let res = await fetch(`${_API_BASE}token/`,{
+  //     method: 'POST',
+  //     headers: {
+  //       'content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify({
+  //       'username': e.target.username.value,
+  //       'password': e.target.password.value,
+  //     })
+  //   })
+    
+  //   if (res.status === 200) {
+  //     return await res.json()
+  //   }
+  //   else {
+  //     alert('Что-то не так с авторизацией')
+  //   }
+  // }
   
   getResource = async (url) => {
     let res = await fetch(url)
@@ -15,7 +36,6 @@ class DjangoPortalService {
   }
 
   addPlaybookFileToGit = async (file) => {
-   
     // http://127.0.0.1:8000/api/v1/add_playbook/
     let res = await fetch(`${_API_BASE}add_playbook/`, {
       method: 'POST',

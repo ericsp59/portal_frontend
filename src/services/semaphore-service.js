@@ -202,7 +202,7 @@ class SemaphoreService {
         "password": this.semaphore_login
       })
     })
-    console.log(res.headers)
+    // console.log(res.headers)
 
     return res
 
