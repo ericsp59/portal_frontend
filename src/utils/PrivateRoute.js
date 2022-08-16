@@ -7,7 +7,6 @@ import AuthContext from "../red/auth-context";
 const  PrivateRoute = ({children, ...rest}) => {
 
     let {user} = useContext(AuthContext)
-    console.log(user)
     
     return(
         <Route {...rest}>{!user ? <Redirect to='/login'/> : children}</Route>

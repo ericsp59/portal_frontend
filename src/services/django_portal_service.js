@@ -2,6 +2,7 @@
 // import Config from "./config_EPK.json";
 import Config from "./config_HOME.json";
 
+
 const _API_BASE = Config.django_portal_API_BASE
 
 class DjangoPortalService {
@@ -26,6 +27,24 @@ class DjangoPortalService {
   //     alert('Что-то не так с авторизацией')
   //   }
   // }
+  getNotes = async (token) => {
+    let res = await fetch(`${_API_BASE}notes/`, {
+      'method': 'GET',
+      'headers': {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + String(token)
+      }
+    })
+    return res
+    // if (res.status === 200) {
+    //   let data = await res.json()
+    //   return data
+    // }
+    // else if (res.statusText === 'Unauthorized') {
+
+    // }
+
+  }
   
   getResource = async (url) => {
     let res = await fetch(url)

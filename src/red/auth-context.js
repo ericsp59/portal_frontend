@@ -15,6 +15,7 @@ export default AuthContext
 export const AuthProvider = ({children}) => {
 
     // localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null
+    let [loading, setLoading] = useState(true)
     let [authTokens, setAuthTokens] = useState(() => localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null)
     let [user, setUser] = useState(() => localStorage.getItem('authTokens') ? jwt_decode(localStorage.getItem('authTokens')).username : null)
 
@@ -44,21 +45,65 @@ export const AuthProvider = ({children}) => {
         }
       }
 
+    let djangoUpdateToken = async() => {
+      console.log('updatetd')
+      let res = await fetch(`${_API_BASE}token/refresh/`,{
+        method: 'POST',
+        headers: {
+          'content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          'refresh': authTokens?.refresh
+        })
+      })
+      let data = await res.json() 
+      if (res.status === 200) {
+        setAuthTokens(data)
+        setUser(jwt_decode(data.access).username)
+        localStorage.setItem('authTokens', JSON.stringify(data))
+        history.push('/')
+      }
+      else {
+        djangoLogoutUser()
+      }  
+      
+      if (loading) {
+        setLoading(false)
+      }
+    }  
+
     let djangoLogoutUser = async () => {
         setAuthTokens(null)
         setUser(null)
         localStorage.removeItem('authTokens')
-        history.push('/login')
     }   
 
     let contextData = {
+        authTokens: authTokens,
         user: user,
         djangoLoginUser: djangoLoginUser,
         djangoLogoutUser: djangoLogoutUser
     }
+
+
+    useEffect(() => {
+
+      if (loading) {
+        djangoUpdateToken()
+      }
+
+      let interval = setInterval(() => {
+        if (authTokens) {
+          djangoUpdateToken()
+        }
+      }, 240000)
+      return () => clearInterval(interval)
+
+    }, [authTokens, loading])
+
     return(
         <AuthContext.Provider value={contextData}>
-            {children}
+            {loading ? null : children}
         </AuthContext.Provider>
     )
 }

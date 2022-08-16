@@ -20,6 +20,7 @@ const MainNav = (props) => {
         <NavLink exact className="nav-link" to={baseDir+"automatization-page"}>Автоматизация</NavLink>
         <NavLink exact className="nav-link" to={baseDir+"control-page"}>Удаленное управление</NavLink>
         <NavLink exact className="nav-link" to={baseDir+"reports-page"}>Отчеты</NavLink>
+        <NavLink exact className="nav-link" to={baseDir+"notes-page"}>Заметки</NavLink>
       </nav> 
 
     </div>

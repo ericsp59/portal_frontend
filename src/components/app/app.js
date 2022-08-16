@@ -17,6 +17,7 @@ import AutomatizationPage from '../pages/automatization-page/automatization-page
 import InventoryPage from '../pages/inventory-page/inventory-page';
 import TemplatesPage from '../pages/templates-page/templates-page';
 import ReportsPage from '../pages/reports-page/reports-page';
+import NotesPage from '../pages/notes-page/notes-page';
 import ControlPage from '../pages/control-page/control-page';
 import ComputersInventoryPage from '../pages/computers-inventory-page/computers-inventory-page';
 import PhonesInventoryPage from '../pages/phones-inventory-page/phones-inventory-page';
@@ -28,6 +29,8 @@ import AuthContext from '../../red/auth-context';
 class App extends Component {
   
   static contextType = AuthContext
+
+  
 
   
   state = this.props.state
@@ -436,21 +439,38 @@ class App extends Component {
       })
     
     // this.loginAndGetTemplates()
-
-    
   }
 
+  getDjangoNotes = async () => {
+    // console.log(this.context)
+    this.djangoPortalService.getNotes(this.context.authTokens.access)
+      .then(async res => {
+        if (res.status === 200) {
+          let data = await res.json()
+          this.setState({
+            djangoBackendData: {
+              ...this.state.djangoBackendData,
+              notes: data  
+            }
+          })
+        }
+        else if (res.statusText === 'Unauthorized') {
+          this.context.djangoLogoutUser()
+        }
+      })
+  }
 
   render() {
 
-    const user = this.context
-    console.log(user.user)
+    // const user = this.context
+    // console.log(user)
 
     const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer, glpiSessionToken, newTemplateName, baseDir} = this.state.app
     const {searchString} = this.state.search
     const {computerList, allComputerList, allComputerListTotalCount, selComputersInfoList} = this.state.glpiData
     const visibleComputerList = this.searchComp(computerList, searchString)
     const {jobTemplateList, keysList} = this.state.SemaphoreData
+    const {notes} = this.state.djangoBackendData
 
     
     return (
@@ -461,8 +481,8 @@ class App extends Component {
             <div className="row">
               <div className="col-sm-12">
                 <AppInfo/>
-                {user.user ? (<Link to='/logout' onClick={user.djangoLogoutUser}>Выйти</Link>) : (<Link to='/login'>Войти</Link>)}
-                <h4>Hello, {user.user}!</h4>
+                {this.context.user ? (<Link to='/logout' onClick={this.context.djangoLogoutUser}>Выйти</Link>) : (<Link to='/login'>Войти</Link>)}
+                <h4>Hello, {this.context.user}!</h4>
               </div>
             </div>
             <div className="row">
@@ -559,6 +579,14 @@ class App extends Component {
 
                   <Route exact path={`${baseDir}control-page`}>
                     <ControlPage/>
+                  </Route>
+
+                  <Route exact path={`${baseDir}notes-page`}>
+                    <NotesPage
+                      notes = {notes}
+                      // context = {user}
+                      getDjangoNotes = {this.getDjangoNotes}
+                    />
                   </Route>
 
                 </Switch>

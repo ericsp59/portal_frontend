@@ -18,6 +18,9 @@ let state = {
     search: {
       searchString: ''
     },
+    djangoBackendData: {
+      notes: [{'id': 1, 'name': "test", 'body': 'testBody'}]
+    },
     app: {
       newTemplateName: '',
       selectedPlaybookFile: {},
