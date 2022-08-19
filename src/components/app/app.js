@@ -30,13 +30,15 @@ class App extends Component {
   
   static contextType = AuthContext
 
-  
 
-  
   state = this.props.state
 
-  initGlpiSession = () => {
-    this.glpi10Service.getGlpiSessionToken()
+  glpi10Service = new Glpi10Service()
+
+  
+
+  initGlpiSession = (glpiAuthConfig) => {
+    this.glpi10Service.getGlpiSessionToken(glpiAuthConfig)
       .then(res => {
         this.setState({
           app: {
@@ -155,7 +157,7 @@ class App extends Component {
      })
   }
 
-  glpi10Service = new Glpi10Service()
+  
 
 
   selectComputer = (id) => {
@@ -170,12 +172,10 @@ class App extends Component {
   }
 
   getCompInfoById = async (id) => {
-    this.glpi10Service.getCompInfoById(this.state.app.glpiSessionToken, id)
+    this.glpi10Service.getCompInfoById(this.state.app.glpiSessionToken, id, this.state.glpiData.glpiAuthConfig)
       .then(res => {
-        const linksData = {}
-
         res.links.forEach(elem => {
-          this.glpi10Service.getResFromLink(this.state.app.glpiSessionToken, elem.href)
+          this.glpi10Service.getResFromLink(this.state.app.glpiSessionToken, elem.href, this.state.glpiData.glpiAuthConfig)
             .then(reslinksData => {
                 res[elem.rel] = [reslinksData]
             })
@@ -195,7 +195,7 @@ class App extends Component {
   }
 
   getComputerIpArr = async (id) => {
-    return await this.glpi10Service.getComputerIpArr(this.state.app.glpiSessionToken,id)
+    return await this.glpi10Service.getComputerIpArr(this.state.app.glpiSessionToken,id, this.state.glpiData.glpiAuthConfig)
     .then(res => {  // Фильтруем ip адреса
       if (res) 
       {
@@ -303,7 +303,7 @@ class App extends Component {
   }
 
   getAllComputersList = () => {
-    this.glpi10Service.getAllComputersList(this.state.app.glpiSessionToken)
+    this.glpi10Service.getAllComputersList(this.state.app.glpiSessionToken, this.state.glpiData.glpiAuthConfig)
       .then(res => {
         this.setState(state => ({
           glpiData: {
@@ -430,13 +430,28 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.initGlpiSession()
-    this.semaforeLogin()
-      .then((res) => {
-        this.getSemaforeTemplateList(res)
-        this.getSemaphoreKeysList(res)
-        this.getSemaphoreInventory(res)
+    
+    this.glpi10Service.getGlpiConfig()
+      .then(res => {
+        this.setState({
+          glpiData: {
+            ...this.state.glpiData,
+            glpiAuthConfig: res
+          }
+        })
+        return res
       })
+      .then(res => {
+        this.initGlpiSession(res)
+        this.semaforeLogin()
+          .then((res) => {
+            this.getSemaforeTemplateList(res)
+            this.getSemaphoreKeysList(res)
+            this.getSemaphoreInventory(res)
+    
+          })
+        }) 
+
     
     // this.loginAndGetTemplates()
   }
@@ -467,7 +482,7 @@ class App extends Component {
 
     const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer, glpiSessionToken, newTemplateName, baseDir} = this.state.app
     const {searchString} = this.state.search
-    const {computerList, allComputerList, allComputerListTotalCount, selComputersInfoList} = this.state.glpiData
+    const {computerList, allComputerList, allComputerListTotalCount, selComputersInfoList, glpiAuthConfig} = this.state.glpiData
     const visibleComputerList = this.searchComp(computerList, searchString)
     const {jobTemplateList, keysList} = this.state.SemaphoreData
     const {notes} = this.state.djangoBackendData
@@ -543,6 +558,7 @@ class App extends Component {
                       selComputersInfoList = {selComputersInfoList}
                       getComputerIpArr = {this.getComputerIpArr}
                       st = {glpiSessionToken}
+                      glpiAuthConfig = {glpiAuthConfig}
                     />
                   </Route>
 

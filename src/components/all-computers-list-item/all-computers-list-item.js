@@ -34,7 +34,7 @@ class AllComputersListItem extends Component {
     if (this.props.Manufacturer != "underfined") {
         // console.log(this.props)
     }
-    console.log(deviceharddrives)
+
     return (
       <div className="row">
         <div className="col-sm-12">

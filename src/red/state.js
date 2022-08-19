@@ -1,5 +1,6 @@
 let state = {
     glpiData: {
+      glpiAuthConfig: {},
       selComputersInfoList: [],
       computerList: [],
       allComputerList: [],
@@ -19,7 +20,7 @@ let state = {
       searchString: ''
     },
     djangoBackendData: {
-      notes: [{'id': 1, 'name': "test", 'body': 'testBody'}]
+      notes: []
     },
     app: {
       newTemplateName: '',

@@ -46,7 +46,6 @@ export const AuthProvider = ({children}) => {
       }
 
     let djangoUpdateToken = async() => {
-      console.log('updatetd')
       let res = await fetch(`${_API_BASE}token/refresh/`,{
         method: 'POST',
         headers: {

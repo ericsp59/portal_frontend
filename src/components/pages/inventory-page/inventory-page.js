@@ -54,7 +54,7 @@ class InventoryPage extends Component {
 
   getSerchComputerInfoById = (id) => {
     
-    this.glpi10Service.getSerchComputerInfoById(this.props.st, id)
+    this.glpi10Service.getSerchComputerInfoById(this.props.st, id, this.props.glpiAuthConfig)
       .then(res => {
         let arr = res.data.map(el => this.glpi10Service.renameObjKeys(el))
         if (arr.length > 0) {
@@ -82,7 +82,6 @@ class InventoryPage extends Component {
   }
   
   render() {
-      console.log(this.state)
       const elements = this.state.selComputersInfoList.map(elem => {
         const {...itemProps} = elem
         return (
