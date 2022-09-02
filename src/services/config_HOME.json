@@ -4,9 +4,10 @@
 "#user_token": "aQdNykvkhbrYgZqHzbG60bKv4MIdvXox90ktcxX1",
 "#app_token": "aQdNykvkhbrYgZqHzbG60bKv4MIdvXox90ktcxX1",
 "#session_token": "2sh8gh2t9kj521igh592h27tm6",
-"semaphore_login": "apier",
-"semaphore_pass": "apier",
-"semaphore_API_BASE": "http://semaphore.home.loc/api/",
-"django_portal_API_BASE": "http://127.0.0.1:8000/api/v1/"
+"#semaphore_login": "apier",
+"#semaphore_pass": "apier",
+"#semaphore_API_BASE": "http://semaphore.home.loc/api/",
+"#django_portal_API_BASE": "http://127.0.0.1:8000/api/v1/",
+"django_portal_API_BASE": "http://portal.home.loc/api/v1/"
 }
 

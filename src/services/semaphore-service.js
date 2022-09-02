@@ -4,37 +4,47 @@
 import Config from "./config_HOME.json";
 
 
-const _API_BASE = Config.semaphore_API_BASE
+// const _API_BASE = Config.semaphore_API_BASE
 // const _API_BASE = 'http://172.16.16.21:3000/api/'
 
 class SemaphoreService {
 
+  django_portal_API_BASE = Config.django_portal_API_BASE
+
+  getSemaphoreConfig = async () => {
+    const res = await fetch(`${this.django_portal_API_BASE}get_semaphore_settings/`, {
+      'method': 'GET'
+    })
+    const data = await res.json()
+    return data.data
+  }
+
   // semaphore_login = Config.semaphore_login
   // semaphore_pass = Config.semaphore_pass
-  semaphore_login = 'apier'
-  semaphore_pass = 'apier'
+  // semaphore_login = 'apier'
+  // semaphore_pass = 'apier'
 
-  deleteSemaphoreTemplate = async (id) => {
-    let res = await fetch(`${_API_BASE}project/1/templates/${id}`, {
+  deleteSemaphoreTemplate = async (semaphoreConfig, id) => {
+    let res = await fetch(`${semaphoreConfig.semaphore_api_url}project/1/templates/${id}`, {
       method: 'DELETE',
       headers: {
         'mode':'no-cors',
         // 'Authorization': `Bearer ${st}`
         // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
-        'Authorization': 'Bearer lxp95vn5an7spmw-y0ckvo13qa2irdywagansutyzde='
+        'Authorization': `Bearer ${semaphoreConfig.semaphore_user_token}`
       },
     })
     return res
   }
 
-  createSemaphoreTemplate = async (TemplateName, playbookName) => {
-    let res = await fetch(`${_API_BASE}project/1/templates`, {
+  createSemaphoreTemplate = async (semaphoreConfig,TemplateName, playbookName) => {
+    let res = await fetch(`${semaphoreConfig.semaphore_api_url}project/1/templates`, {
       method: 'POST',
       headers: {
         'mode':'no-cors',
         // 'Authorization': `Bearer ${st}`
         // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
-        'Authorization': 'Bearer lxp95vn5an7spmw-y0ckvo13qa2irdywagansutyzde='
+        'Authorization': `Bearer ${semaphoreConfig.semaphore_user_token}`
       },
       body: JSON.stringify({
         "project_id": 1,
@@ -51,30 +61,30 @@ class SemaphoreService {
   }
 
 
-  getSemaphoreKeys = async () => {
-    let res = await fetch(`${_API_BASE}project/1/keys`, {
+  getSemaphoreKeys = async (semaphoreConfig) => {
+    let res = await fetch(`${semaphoreConfig.semaphore_api_url}project/1/keys`, {
       headers: {
         'mode':'no-cors',
         // 'Authorization': `Bearer ${st}`
         // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
-        'Authorization': 'Bearer lxp95vn5an7spmw-y0ckvo13qa2irdywagansutyzde='
+        'Authorization': `Bearer ${semaphoreConfig.semaphore_user_token}`
       },  
     })
     return await res.json()
   }
 
-  runSemaphoreTemplate = async (st, id) => {
-    let res = await this.getSemaphoreTemplate(st, id)
+  runSemaphoreTemplate = async (semaphoreConfig, id) => {
+    let res = await this.getSemaphoreTemplate(semaphoreConfig, id)
       .then(async (template) => {
         // let environment = await this.getSemaphoreInvironment(template.environment_id)
         // console.log(environment)
-        let res = await fetch(`${_API_BASE}project/1/tasks`, {
+        let res = await fetch(`${semaphoreConfig.semaphore_api_url}project/1/tasks`, {
           method: "POST",
           headers: {
             'mode':'no-cors',
             // 'Authorization': `Bearer ${st}`
             // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
-            'Authorization': 'Bearer lxp95vn5an7spmw-y0ckvo13qa2irdywagansutyzde='
+            'Authorization': `Bearer ${semaphoreConfig.semaphore_user_token}`
           },  
           body: JSON.stringify({ 
             "template_id": template.id,
@@ -89,14 +99,14 @@ class SemaphoreService {
       return res
   }
 
-  getSemaphoreInvironment = async (st, id) => {
+  getSemaphoreInvironment = async (semaphoreConfig, id) => {
     console.log(id)
-    let res = await fetch(`${_API_BASE}project/1/environment`, {
+    let res = await fetch(`${semaphoreConfig.semaphore_api_url}project/1/environment`, {
       headers: {
         'mode':'no-cors',
         // 'Authorization': `Bearer ${st}`
         // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
-        'Authorization': 'Bearer lxp95vn5an7spmw-y0ckvo13qa2irdywagansutyzde='
+        'Authorization': `Bearer ${semaphoreConfig.semaphore_user_token}`
       },  
     })
     let env = await res.json()
@@ -104,15 +114,14 @@ class SemaphoreService {
     // return await res.json()
   }
 
-  updateSemaphoreInventory = async (st, inventory, ipAddresses, selectedKeysIds) => {
-    console.log(selectedKeysIds)
-    let res = await fetch(`${_API_BASE}project/1/inventory/${inventory['id']}`, {
+  updateSemaphoreInventory = async (semaphoreConfig, inventory, ipAddresses, selectedKeysIds) => {
+    let res = await fetch(`${semaphoreConfig.semaphore_api_url}project/1/inventory/${inventory['id']}`, {
       method: "PUT",
       headers: {
         'mode':'no-cors',
         // 'Authorization': `Bearer ${st}`
         // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
-        'Authorization': 'Bearer lxp95vn5an7spmw-y0ckvo13qa2irdywagansutyzde='
+        'Authorization': `Bearer ${semaphoreConfig.semaphore_user_token}`
       },  
       body: JSON.stringify({ 
         "id": inventory['id'],
@@ -129,83 +138,84 @@ class SemaphoreService {
     return res
   }
 
-  getSemaphoreInventory = async (st) => {
-    let res = await fetch(`${_API_BASE}project/1/inventory`, {
+  getSemaphoreInventory = async (semaphoreConfig) => {
+    let res = await fetch(`${semaphoreConfig.semaphore_api_url}project/1/inventory`, {
       headers: {
         'mode':'no-cors',
         // 'Authorization': `Bearer ${st}`
         // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
-        'Authorization': 'Bearer lxp95vn5an7spmw-y0ckvo13qa2irdywagansutyzde='
+        'Authorization': `Bearer ${semaphoreConfig.semaphore_user_token}`
+      },  
+    })
+    const data = await res.json()
+    return data
+  }
+
+  getSemaphoreTemplates = async (semaphoreConfig) => {
+    let res = await fetch(`${semaphoreConfig.semaphore_api_url}project/1/templates`, {
+      headers: {
+        'mode':'no-cors',
+        // 'Authorization': `Bearer ${st}`
+        // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
+        'Authorization': `Bearer ${semaphoreConfig.semaphore_user_token}`
       },  
     })
     return await res.json()
   }
 
-  getSemaphoreTemplates = async (st) => {
-    let res = await fetch(`${_API_BASE}project/1/templates`, {
+  getSemaphoreTemplate = async (semaphoreConfig, id) => {
+    let res = await fetch(`${semaphoreConfig.semaphore_api_url}project/1/templates/${id}`, {
       headers: {
         'mode':'no-cors',
         // 'Authorization': `Bearer ${st}`
         // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
-        'Authorization': 'Bearer lxp95vn5an7spmw-y0ckvo13qa2irdywagansutyzde='
+        'Authorization': `Bearer ${semaphoreConfig.semaphore_user_token}`
       },  
     })
     return await res.json()
   }
 
-  getSemaphoreTemplate = async (st, id) => {
-    let res = await fetch(`${_API_BASE}project/1/templates/${id}`, {
-      headers: {
-        'mode':'no-cors',
-        // 'Authorization': `Bearer ${st}`
-        // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
-        'Authorization': 'Bearer lxp95vn5an7spmw-y0ckvo13qa2irdywagansutyzde='
-      },  
-    })
-    return await res.json()
-  }
-
-  getSemaphoreUserTokens = async (st) => {
-    let res = await fetch(`${_API_BASE}user/tokens`, {
+  getSemaphoreUserTokens = async (semaphoreConfig) => {
+    let res = await fetch(`${semaphoreConfig.semaphore_api_url}user/tokens`, {
+      method: "GET",
+      credentials: "same-origin",
       headers: {
         'mode':'no-cors',
         // 'Authorization': `Bearer ${st}`
         // 'Authorization': 'Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4='
-        'Authorization': 'Bearer lxp95vn5an7spmw-y0ckvo13qa2irdywagansutyzde='
+        'Authorization': `Bearer ${semaphoreConfig.semaphore_user_token}`
       },  
     })
     return await res.json()
   }
 
-  createSemaphoreApiToken = async () => {
-    let res = await fetch(`${_API_BASE}user/tokens`, {
+  createSemaphoreApiToken = async (semaphoreAuthConfig) => {
+    console.log('Create Token!!!', semaphoreAuthConfig)
+    let res = await fetch(`${semaphoreAuthConfig.semaphore_api_url}user/tokens`, {
       method: 'POST',
       // headers: {
       //   'mode':'no-cors'
       // },
       body: JSON.stringify({
-        "auth": this.semaphore_login,
-        "password": this.semaphore_login
+        "auth": semaphoreAuthConfig.semaphore_user_login,
+        "password": semaphoreAuthConfig.semaphore_user_password
       })
     })
     return await res.json()
   }
 
-  login = async () => {
-    let res = await fetch(`${_API_BASE}auth/login`, {
+  login = async (gsemaphoreAuthConfig) => {
+    let res = await fetch(`${gsemaphoreAuthConfig.semaphore_api_url}auth/login`, {
       method: 'POST',
       // headers: {
       //   'mode':'no-cors'
       // },
       body: JSON.stringify({
-        "auth": this.semaphore_login,
-        "password": this.semaphore_login
+        "auth": gsemaphoreAuthConfig.semaphore_user_login,
+        "password": gsemaphoreAuthConfig.semaphore_user_password
       })
     })
-    // console.log(res.headers)
-
     return res
-
   }
 
 

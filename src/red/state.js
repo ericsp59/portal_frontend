@@ -13,6 +13,7 @@ let state = {
     //   jobTemplateList: []
     // },
     SemaphoreData: {
+      semaphoreAuthConfig: [],
       jobTemplateList: [],
       keysList: []
     },

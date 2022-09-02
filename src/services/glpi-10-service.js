@@ -89,16 +89,8 @@ class Glpi10Service {
       
     }
     const data = await res.json()
-    // console.log(data)
     return data
   }
-  // getOneResource = async (url, st) => {
-  //   let res = await fetch(url)
-  //   if (!res.ok) {
-  //     throw new Error(`Could not fetch ${url}, status: ${res.status}`)
-  //   }
-  //   return await res.json()
-  // }
 
   getGlpiSessionToken = async (glpiAuthConfig) => {
     const res = await fetch(`${glpiAuthConfig.glpi_api_url}initSession`, {
@@ -112,25 +104,13 @@ class Glpi10Service {
     const data = await res.json()
     return data.session_token
   }
-  // getGlpiSessionToken = async (glpiAuthConfig) => {
-  //   console.log(glpiAuthConfig)
-  //   const res = await fetch(`${this._API_URL}initSession`, {
-  //     'method': 'GET',
-  //     'headers': {
-  //       'Authorization': `user_token ${this.user_token}`,
-  //       'app-token': `${this.app_token}`
 
-  //     }
-  //   })
-  //   const data = await res.json()
-  //   return data.session_token
-  // }
 
   getComputerIpArr = async (st,id, glpiAuthConfig) => {
     const res = await this.getOneRes(`search/Computer?
     criteria[0][link]=AND&criteria[0][field]=126&criteria[0][searchtype]=contains&criteria[0][value]=&
     criteria[1][link]=AND&criteria[1][field]=2&criteria[1][searchtype]=contains&criteria[1][value]=${id}`,st, glpiAuthConfig)
-    console.log(res)
+
     if (res.data) {
       for (let i = 0; i < res.data.length; i++) {
         const element = res.data[i];
@@ -139,18 +119,7 @@ class Glpi10Service {
       return res.data
     }
   }
-  // getComputerIpArr = async (st,id) => {
-  //   const res = await this.getOneResource(`${this._API_URL}search/Computer?
-  //   criteria[0][link]=AND&criteria[0][field]=126&criteria[0][searchtype]=contains&criteria[0][value]=&
-  //   criteria[1][link]=AND&criteria[1][field]=2&criteria[1][searchtype]=contains&criteria[1][value]=${id}&app_token=${this.app_token}&session_token=${st}`)
-  //   if (res.data) {
-  //     for (let i = 0; i < res.data.length; i++) {
-  //       const element = res.data[i];
-  //       this.renameObjKeys(element)
-  //     }
-  //     return res.data
-  //   }
-  // }
+
 
   getSerchComputerInfoById = async (st, id, glpiAuthConfig) => {
     const res = await this.getRes(`search/Computer?
@@ -162,6 +131,7 @@ class Glpi10Service {
       criteria[5][field]=111&criteria[5][searchtype]=contains&criteria[5][value]=&
       criteria[6][field]=115&criteria[6][searchtype]=contains&criteria[6][value]=&`, st, glpiAuthConfig)
       const data = await res.json()
+      console.log(data)
       return data
     }
   
@@ -185,7 +155,6 @@ class Glpi10Service {
   }
 
   getResFromLink = async (st, link, glpiAuthConfig) => {
-    
     const new_link = link.replace(glpiAuthConfig.glpi_api_url, '')
     const res = await this.getOneRes(`${new_link}`, st, glpiAuthConfig)
     return res

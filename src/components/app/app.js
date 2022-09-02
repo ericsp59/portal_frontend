@@ -146,9 +146,9 @@ class App extends Component {
     this.djangoPortalService.addPlaybookFileToGit(this.state.app.selectedPlaybookFile)
      .then(res => {
       if (res.post == 'ok'){
-        this.semaforeService.createSemaphoreTemplate(this.state.app.newTemplateName, res.name)
+        this.semaforeService.createSemaphoreTemplate(this.state.SemaphoreData.semaphoreAuthConfig, this.state.app.newTemplateName, res.name)
           .then(res => {
-            this.getSemaforeTemplateList()
+            this.getSemaforeTemplateList(this.state.SemaphoreData.semaphoreAuthConfig)
             // console.log(res)
           })
       }
@@ -232,13 +232,13 @@ class App extends Component {
         })
 
     }
-    this.semaforeService.updateSemaphoreInventory(this.state.app.semaphoreSessionToken, this.state.app.glpiInventory, ipString, selectedKeysIds)
+    this.semaforeService.updateSemaphoreInventory(this.state.SemaphoreData.semaphoreAuthConfig, this.state.app.glpiInventory, ipString, selectedKeysIds)
       .then(async (res) => {
         if (res.ok) {
           // console.log('run template', selectedTemplatesIds)
           for (const id of selectedTemplatesIds) {
             
-            await this.semaforeService.runSemaphoreTemplate(this.state.app.semaphoreSessionToken, id)
+            await this.semaforeService.runSemaphoreTemplate(this.state.SemaphoreData.semaphoreAuthConfig, id)
               .then(x => {
                 // console.log(x)
                 // console.log(selectedKeysIds)
@@ -329,51 +329,52 @@ class App extends Component {
 
   semaforeService = new SemaforeService();
 
-  semaforeLogin = async () => {
-    let result = await this.semaforeService.login()
-      .then(async (res) => {
-        if (res.ok) {
-          let st = await this.semaforeService.getSemaphoreUserTokens(this.state.app.semaphoreSessionToken)
-            .then(async res => {
-              let i = -1
-              for (let k = 0; k < res.length; k++) {
-                let token = res[k]          
-                if (!token.expired) {
-                  i = k
-                  break
-                }
-              }
-              if (i !== -1) {
-                return (res[i].id)        
-              }
-              else {
-                await this.semaforeService.createSemaphoreApiToken()
-                  .then(res => {
-                    return res.id
-                  })
-              }  
-            })
-            return st
-        }
-        else {
-          console.log('login bad')
-        }
+  semaforeLogin = async (res) => {
+    const semaforeAuthConfig = res
+    let result = await this.semaforeService.login(semaforeAuthConfig)
+      // .then(async (res) => {
+      //   if (res.ok) {
+      //     let st = await this.semaforeService.getSemaphoreUserTokens(semaforeAuthConfig)
+      //       .then(async res => {
+      //         let i = -1
+      //         for (let k = 0; k < res.length; k++) {
+      //           let token = res[k]          
+      //           if (!token.expired) {
+      //             i = k
+      //             break
+      //           }
+      //         }
+      //         if (i !== -1) {
+      //           return (res[i].id)        
+      //         }
+      //         else {
+      //           await this.semaforeService.createSemaphoreApiToken(semaforeAuthConfig)
+      //             .then(res => {
+      //               return res.id
+      //             })
+      //         }  
+      //       })
+      //       return st
+      //   }
+      //   else {
+      //     console.log('login bad')
+      //   }
         
-      })
-      .then(st => {
-        this.setState({
-          app: {
-            ...this.state.app,
-            semaphoreSessionToken: st
-          }
-        })
-        return st
-      })
-      return result
+      // })
+      // .then(st => {
+      //   this.setState({
+      //     app: {
+      //       ...this.state.app,
+      //       semaphoreSessionToken: st
+      //     }
+      //   })
+      //   return st
+      // })
+      return semaforeAuthConfig
   }
 
-  getSemaphoreKeysList = async () => {
-    this.semaforeService.getSemaphoreKeys()
+  getSemaphoreKeysList = async (res) => {
+    this.semaforeService.getSemaphoreKeys(res)
       .then(res => {
         this.setState({
           SemaphoreData: {
@@ -385,10 +386,9 @@ class App extends Component {
   }
 
   deleteSemaphoreTemplate = (id) => {
-    this.semaforeService.deleteSemaphoreTemplate(id)
+    this.semaforeService.deleteSemaphoreTemplate(this.state.SemaphoreData.semaphoreAuthConfig, id)
       .then(res => {
-        console.log(res)
-        this.getSemaforeTemplateList()
+        this.getSemaforeTemplateList(this.state.SemaphoreData.semaphoreAuthConfig)
       })
   }
 
@@ -406,8 +406,8 @@ class App extends Component {
     })
   }
 
-  getSemaphoreInventory = (st) => {
-    this.semaforeService.getSemaphoreInventory(st)
+  getSemaphoreInventory = (semaphoreConfig) => {
+    this.semaforeService.getSemaphoreInventory(semaphoreConfig)
       .then(res => {
         if (res != []) {
           // console.log(res.filter(el => el.name === 'portal_inventory')[0])
@@ -421,13 +421,13 @@ class App extends Component {
       })
   }
 
-  loginAndGetTemplates = async () => {
-    this.semaforeLogin()
-      .then((res) => {
-        console.log(res)
-        // this.getSemaforeTemplateList()
-      })
-  }
+  // loginAndGetTemplates = async () => {
+  //   this.semaforeLogin()
+  //     .then((res) => {
+  //       console.log(res)
+  //       // this.getSemaforeTemplateList()
+  //     })
+  // }
 
   componentDidMount() {
     
@@ -443,14 +443,27 @@ class App extends Component {
       })
       .then(res => {
         this.initGlpiSession(res)
-        this.semaforeLogin()
-          .then((res) => {
-            this.getSemaforeTemplateList(res)
-            this.getSemaphoreKeysList(res)
-            this.getSemaphoreInventory(res)
-    
-          })
-        }) 
+
+    this.semaforeService.getSemaphoreConfig()
+      .then(res => {
+        this.setState({
+          SemaphoreData: {
+            ...this.state.SemaphoreData,
+            semaphoreAuthConfig: res
+          }
+        })
+        return res
+      })
+      .then(res => {
+        this.semaforeLogin(res)
+        .then((res) => {
+          this.getSemaforeTemplateList(res)
+          this.getSemaphoreKeysList(res)
+          this.getSemaphoreInventory(res)
+  
+        })
+      })
+    }) 
 
     
     // this.loginAndGetTemplates()
