@@ -170,7 +170,41 @@ class App extends Component {
     }) 
     // 
   }
+  selectPhone = (id) => {
+    this.getPhoneInfoById(id)
+    this.setState({
+      app: {
+        ...this.state.app,
+        selectedPhone: id
+      }
+    }) 
+    // 
+  }
 
+
+
+  getPhoneInfoById = async (id) => {
+    this.glpi10Service.getPhoneInfoById(this.state.app.glpiSessionToken, id, this.state.glpiData.glpiAuthConfig)
+      .then(res => {
+        res.links.forEach(elem => {
+          this.glpi10Service.getResFromLink(this.state.app.glpiSessionToken, elem.href, this.state.glpiData.glpiAuthConfig)
+            .then(reslinksData => {
+                res[elem.rel] = [reslinksData]
+            })
+        });
+        // res['linksData'] = linksData
+        // console.log(res)
+        return res
+      })
+      .then(res => {
+        this.setState(state => ({
+            glpiData: {
+            ...state.glpiData,
+            selPhonesInfoList: [res]
+            }
+        }))
+      })
+  }
   getCompInfoById = async (id) => {
     this.glpi10Service.getCompInfoById(this.state.app.glpiSessionToken, id, this.state.glpiData.glpiAuthConfig)
       .then(res => {
@@ -283,6 +317,24 @@ class App extends Component {
   }
   
 
+  setSelectedPhoneId = (checked, id) => {
+    if (checked) {
+      this.setState(state => ({
+        app: {
+          ...this.state.app,
+          selectedPhoneIds: [...state.app.selectedPhoneIds, id]
+        }
+      }))
+    }
+    else {
+      this.setState(state => ({
+        app: {
+          ...this.state.app,
+          selectedPhoneIds: state.app.selectedPhoneIds.filter(el => el !== id)
+        }
+      }))  
+    }
+  }
   setSelectedComputerId = (checked, id) => {
     if (checked) {
       this.setState(state => ({
@@ -298,7 +350,7 @@ class App extends Component {
           ...this.state.app,
           selectedComputerIds: state.app.selectedComputerIds.filter(el => el !== id)
         }
-      }))  
+      })) 
     }
   }
 
@@ -310,6 +362,18 @@ class App extends Component {
             ...state.glpiData,
             allComputerList: [...state.glpiData.allComputerList, ...res.data],
             allComputerListTotalCount: res.contentTotalCount
+          },
+        }))
+      })
+  }
+  getAllPhonesList = () => {
+    this.glpi10Service.getAllPhonesList(this.state.app.glpiSessionToken, this.state.glpiData.glpiAuthConfig)
+      .then(res => {
+        this.setState(state => ({
+          glpiData: {
+            ...state.glpiData,
+            allPhonesList: [...state.glpiData.allPhonesList, ...res.data],
+            allPhonesListTotalCount: res.contentTotalCount
           },
         }))
       })
@@ -493,9 +557,9 @@ class App extends Component {
     // const user = this.context
     // console.log(user)
 
-    const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer, glpiSessionToken, newTemplateName, baseDir} = this.state.app
+    const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer,selectedPhone, glpiSessionToken, newTemplateName, baseDir} = this.state.app
     const {searchString} = this.state.search
-    const {computerList, allComputerList, allComputerListTotalCount, selComputersInfoList, glpiAuthConfig} = this.state.glpiData
+    const {computerList, allPhonesList, allPhonesListTotalCount, allComputerList, allComputerListTotalCount, selComputersInfoList, selPhonesInfoList, glpiAuthConfig} = this.state.glpiData
     const visibleComputerList = this.searchComp(computerList, searchString)
     const {jobTemplateList, keysList} = this.state.SemaphoreData
     const {notes} = this.state.djangoBackendData
@@ -532,10 +596,14 @@ class App extends Component {
               <div className="col-sm-2">
                 <AssetsList
                   getAllComputersList={this.getAllComputersList}
+                  getAllPhonesList={this.getAllPhonesList}
                   allComputerList={this.searchComp(allComputerList, searchString)}
+                  allPhonesList={this.searchComp(allPhonesList, searchString)}
                   // allComputerList={allComputerList}
                   setSelectedComputerId={this.setSelectedComputerId}
+                  setSelectedPhoneId={this.setSelectedPhoneId}
                   selectComputer = {this.selectComputer}
+                  selectPhone = {this.selectPhone}
                 />
               </div> 
 
@@ -568,7 +636,9 @@ class App extends Component {
                     <InventoryPage
                       // selectedComputerIds = {selectedComputerIds}
                       selectedComputer = {selectedComputer}
+                      selectedPhone = {selectedPhone}
                       selComputersInfoList = {selComputersInfoList}
+                      selPhonesInfoList = {selPhonesInfoList}
                       getComputerIpArr = {this.getComputerIpArr}
                       st = {glpiSessionToken}
                       glpiAuthConfig = {glpiAuthConfig}

@@ -2,12 +2,15 @@ let state = {
     glpiData: {
       glpiAuthConfig: {},
       selComputersInfoList: [],
+      selPhonesInfoList: [],
       computerList: [],
+      allPhonesList: [],
       allComputerList: [],
       loadingComputerList: false,
       // selectedComputerItems:[],
       computerListTotalCount: 0,
       allComputerListTotalCount: 0,
+      allPhonesListTotalCount: 0,
     },
     // awxData: {
     //   jobTemplateList: []
@@ -28,9 +31,11 @@ let state = {
       selectedPlaybookFile: {},
       glpiSessionToken: '',
       semaphoreSessionToken: '12',
-      selectedComputer: 1,
+      selectedComputer: 0,
+      selectedPhone: 0,
       glpiInventory: {},
       selectedComputerIds: [],
+      selectedPhoneIds: [],
       selectedTemplatesIds: [],
       selectedKeysIds: [],
       loading: true,

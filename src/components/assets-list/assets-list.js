@@ -4,30 +4,60 @@ class AssetsList extends Component {
 
   state = {
     computerBtnIsCollapsed: true,
+    PhoneBtnIsCollapsed: true,
   }
 
-  openAccordionItem = (func) => {
+  openAccordionItem = (func, type) => {
     func()
-    this.setState(state => ({
-      computerBtnIsCollapsed: !state.computerBtnIsCollapsed
-    }))
+    if (type=="Phones") {
+      this.setState(state => ({
+        PhoneBtnIsCollapsed: !state.PhoneBtnIsCollapsed,
+      }))
+    }
+    else if (type == 'Computers'){
+      this.setState(state => ({
+        computerBtnIsCollapsed: !state.computerBtnIsCollapsed
+      }))      
+    }
+
   }
 
   render() {
-    const {getAllComputersList, allComputerList, setSelectedComputerId, selectComputer} = this.props
-    const elements = allComputerList.map(elem => {
+    const {getAllComputersList, getAllPhonesList, selectPhone, selectComputer, allComputerList, allPhonesList, setSelectedComputerId, setSelectedPhoneId} = this.props
+
+    const elementsComputers = allComputerList.map(elem => {
       return (
         <li key={elem.id} style={{'listStyleType': 'none'}}>
           
-          <p onClick={() => selectComputer(elem.id)}>
+          
             <input
               type="checkbox"
               onChange={(e) => setSelectedComputerId(e.target.checked, elem.id)}
-            /> {elem.id}: {elem.name}
-          </p>
+            />
+            <p style={{'display': 'inline-block', 'marginLeft': '5px'}}
+              onClick={() => selectComputer(elem.id)}>{elem.id}: {elem.name}</p> 
+          
         </li>
       )
     })
+    const elementsPhones = allPhonesList.map(elem => {
+      return (
+        <li key={elem.id} style={{'listStyleType': 'none'}}>
+          <input
+              type="checkbox"
+              onChange={(e) => setSelectedPhoneId(e.target.checked, elem.id)}
+          /> 
+
+          <p style={{'display': 'inline-block', 'marginLeft': '5px'}} 
+            onClick={() => selectPhone(elem.id)}>
+            {elem.id}: {elem.name}  
+          </p>    
+          
+        </li>
+      )
+    })
+
+
     return (
     <>
       <div className="accordion" id="accordionPanelsStayOpenExample">
@@ -35,7 +65,7 @@ class AssetsList extends Component {
           <h2 className="accordion-header" id="panelsStayOpen-headingOne">
             <button
               onClick={this.state.computerBtnIsCollapsed?
-                () => this.openAccordionItem(getAllComputersList) : null}
+                () => this.openAccordionItem(getAllComputersList, 'Computers') : null}
               className="accordion-button collapsed"
               type="button"
               data-bs-toggle="collapse"
@@ -48,25 +78,34 @@ class AssetsList extends Component {
           </h2>
           <div id="panelsStayOpen-collapseOne" className="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingOne">
             <div className="accordion-body">
-                {/* <ul> */}
-                  {elements}
-                {/* </ul> */}
-                
+                  {elementsComputers}          
             </div>
           </div>
         </div>
+
         <div className="accordion-item">
           <h2 className="accordion-header" id="panelsStayOpen-headingTwo">
-            <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
-              Телефоны
+            <button
+              onClick={this.state.PhoneBtnIsCollapsed?
+                () => this.openAccordionItem(getAllPhonesList, 'Phones') : null}
+              className="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#panelsStayOpen-collapseTwo"
+              aria-expanded="true"
+              aria-controls="panelsStayOpen-collapseTwo"
+            >Телефоны
+            
             </button>
           </h2>
           <div id="panelsStayOpen-collapseTwo" className="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingTwo">
             <div className="accordion-body">
-            Телефоны list
+                  {elementsPhones}          
             </div>
           </div>
         </div>
+
+
         <div className="accordion-item">
           <h2 className="accordion-header" id="panelsStayOpen-headingThree">
             <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false" aria-controls="panelsStayOpen-collapseThree">

@@ -131,8 +131,14 @@ class Glpi10Service {
       criteria[5][field]=111&criteria[5][searchtype]=contains&criteria[5][value]=&
       criteria[6][field]=115&criteria[6][searchtype]=contains&criteria[6][value]=&`, st, glpiAuthConfig)
       const data = await res.json()
-      console.log(data)
       return data
+    }
+    getSerchPhoneInfoById = async (st, id, glpiAuthConfig) => {
+    const res = await this.getRes(`search/Phone?
+      criteria[0][link]=AND&criteria[0][field]=2&criteria[0][searchtype]=contains&criteria[0][value]=${id}&
+      criteria[1][field]=5&criteria[1][searchtype]=contains&criteria[1][value]=&`, st, glpiAuthConfig)  
+    const data = await res.json()
+    return data
     }
   
 
@@ -145,8 +151,23 @@ class Glpi10Service {
       data: data
     }
   }
+  getAllPhonesList = async (st, glpiAuthConfig) => {
+    const res = await this.getRes(`Phone?expand_dropdowns=true&range=0-500`, st, glpiAuthConfig)
+    const data = await res.json()
+    return {
+      aceptRange: res.headers.get('Accept-Range').split(' ')[1],
+      contentTotalCount: res.headers.get('Content-Range').split('/')[1],
+      data: data
+    }
+  }
 
 
+  getPhoneInfoById= async (st, id, glpiAuthConfig) => {
+    if (id != null){
+      const res = await this.getOneRes(`Phone/${id}`,st, glpiAuthConfig) 
+      return res
+    }
+  }
   getCompInfoById= async (st, id, glpiAuthConfig) => {
     if (id != null){
       const res = await this.getOneRes(`Computer/${id}`,st, glpiAuthConfig) 
