@@ -1,0 +1,13 @@
+.semaphore_output_body {
+    background-color: #545353;
+    /* height: 100vh; */
+    color: white;
+  }
+
+
+
+.semaphore_output_li {
+    list-style-type: none;
+    line-height: 1.1em;
+    font-size: small;
+}  

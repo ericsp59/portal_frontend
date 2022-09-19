@@ -6,3 +6,27 @@
   box-shadow: 15px 15px 30px rgba(0,0,0, .15);
   color: black;
 } */
+
+.btn-sm {
+  width: 100px;
+}
+
+/* .spinner {
+  min-height: 20px;
+  display: inline-block;
+}
+.spinner > img{
+  height: 20px;
+  margin-bottom: 5px;
+    margin-right: 5px;
+} */
+
+
+.p {
+  display: inline-block;
+}
+
+.scroll {
+  overflow: scroll;
+  height: 500px;
+}

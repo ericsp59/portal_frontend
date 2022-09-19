@@ -53,7 +53,7 @@ class InventoryPage extends Component {
   // }
 
   getSerchComputerInfoById = (id) => {
-    console.log('getSerchComputerInfoById', id)
+
     this.glpi10Service.getSerchComputerInfoById(this.props.st, id, this.props.glpiAuthConfig)
       .then(res => {
         let arr = res.data.map(el => this.glpi10Service.renameObjKeys(el))
@@ -70,7 +70,6 @@ class InventoryPage extends Component {
       })
   }
   getSerchPhoneInfoById = (id) => {
-    console.log('getSerchPhoneInfoById', id)
     this.glpi10Service.getSerchPhoneInfoById(this.props.st, id, this.props.glpiAuthConfig)
       .then(res => {
         let arr = res.data.map(el => this.glpi10Service.renameObjKeys(el))
@@ -92,12 +91,11 @@ class InventoryPage extends Component {
   }
 
   componentDidUpdate(prevProps, prevState){
-    console.log(this.props.selectedPhone)
-    if (prevProps.selectedComputer !== this.props.selectedComputer) {
+    if (prevProps.selectedComputer !== this.props.selectedComputer && this.props.selectedComputer !==0) {
       // this.getCompInfoById(this.props.selectedComputer)
       this.getSerchComputerInfoById(this.props.selectedComputer)
     }
-    if (prevProps.selectedPhone !== this.props.selectedPhone) {
+    if (prevProps.selectedPhone !== this.props.selectedPhone && this.props.selectedPhone !==0) {
       // this.getCompInfoById(this.props.selectedComputer)
       this.getSerchPhoneInfoById(this.props.selectedPhone)
     }

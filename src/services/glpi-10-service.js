@@ -133,6 +133,7 @@ class Glpi10Service {
       const data = await res.json()
       return data
     }
+    
     getSerchPhoneInfoById = async (st, id, glpiAuthConfig) => {
     const res = await this.getRes(`search/Phone?
       criteria[0][link]=AND&criteria[0][field]=2&criteria[0][searchtype]=contains&criteria[0][value]=${id}&

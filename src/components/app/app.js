@@ -165,7 +165,9 @@ class App extends Component {
     this.setState({
       app: {
         ...this.state.app,
-        selectedComputer: id
+        selectedComputer: id,
+        selectedNteworkDev: 0,
+        selectedPhone: 0
       }
     }) 
     // 
@@ -175,7 +177,9 @@ class App extends Component {
     this.setState({
       app: {
         ...this.state.app,
-        selectedPhone: id
+        selectedPhone: id,
+        selectedComputer: 0,
+        selectedNteworkDev: 0,        
       }
     }) 
     // 
@@ -274,7 +278,7 @@ class App extends Component {
             
             await this.semaforeService.runSemaphoreTemplate(this.state.SemaphoreData.semaphoreAuthConfig, id)
               .then(x => {
-                // console.log(x)
+                
                 // console.log(selectedKeysIds)
                 this.djangoPortalService.addRunTemplateJobToLogs(id, selectedKeysIds)
                 console.log(selectedKeysIds, id)
@@ -435,6 +439,16 @@ class App extends Component {
       //   return st
       // })
       return semaforeAuthConfig
+  }
+
+  getSemaphoreTaskOutput = async (id) => {
+    let res = await this.semaforeService.getSemaphoreTaskOutput(this.state.SemaphoreData.semaphoreAuthConfig, id)
+    return res
+  }
+
+  getSemaphoreTasks = async () => {
+    let res = await this.semaforeService.getSemaphoreTasks(this.state.SemaphoreData.semaphoreAuthConfig)
+    return res
   }
 
   getSemaphoreKeysList = async (res) => {
@@ -620,6 +634,7 @@ class App extends Component {
 
                     <ErrorBoundary>
                       <AutomatizationPage
+                      
                         keysList = {keysList}
                         selectedComputerIds = {selectedComputerIds}
                         setSelectedTemplateIds = {this.setSelectedTemplateIds}
@@ -628,6 +643,8 @@ class App extends Component {
                         selectedTemplatesIds = {selectedTemplatesIds}
                         runSemaphoreTemplate = {this.runSemaphoreTemplate}
                         semaforeLogin = {this.semaforeLogin}
+                        getSemaphoreTasks = {this.getSemaphoreTasks}
+                        getSemaphoreTaskOutput = {this.getSemaphoreTaskOutput}
                       />
                     </ErrorBoundary>
                   </Route>

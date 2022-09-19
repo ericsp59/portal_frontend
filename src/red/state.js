@@ -18,7 +18,7 @@ let state = {
     SemaphoreData: {
       semaphoreAuthConfig: [],
       jobTemplateList: [],
-      keysList: []
+      keysList: [],
     },
     search: {
       searchString: ''
@@ -33,6 +33,7 @@ let state = {
       semaphoreSessionToken: '12',
       selectedComputer: 0,
       selectedPhone: 0,
+      selectedNteworkDev: 0,
       glpiInventory: {},
       selectedComputerIds: [],
       selectedPhoneIds: [],

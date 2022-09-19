@@ -94,13 +94,39 @@ class SemaphoreService {
             // "environment": environment.name
           })
         })
-        return await res.json()
+        const data = await res.json()
+        return data
       })
       return res
   }
 
+  getSemaphoreTaskOutput = async (semaphoreConfig,id) => {
+    let res = await fetch(`${semaphoreConfig.semaphore_api_url}project/1/tasks/${id}/output`, {
+      headers: {
+        'mode':'no-cors',
+        'Authorization': `Bearer ${semaphoreConfig.semaphore_user_token}`
+      },  
+    })
+    let data = await res.json()
+    return data
+  }
+
+  getSemaphoreTasks = async (semaphoreConfig) => {
+    let res = await fetch(`${semaphoreConfig.semaphore_api_url}project/1/tasks`, {
+      headers: {
+        'mode':'no-cors',
+        // 'Authorization': `Bearer ${st}`
+        // 'Authorization': `Bearer jmukvrol3eua_kkjkv4brxsodbglujrrgaembgi4ks4=`
+        'Authorization': `Bearer ${semaphoreConfig.semaphore_user_token}`
+      },  
+    })
+    let data = await res.json()
+    // console.log(data)
+    return data
+    // return await res.json()
+  }
+
   getSemaphoreInvironment = async (semaphoreConfig, id) => {
-    console.log(id)
     let res = await fetch(`${semaphoreConfig.semaphore_api_url}project/1/environment`, {
       headers: {
         'mode':'no-cors',

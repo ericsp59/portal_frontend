@@ -35,7 +35,8 @@ class AssetsList extends Component {
               onChange={(e) => setSelectedComputerId(e.target.checked, elem.id)}
             />
             <p style={{'display': 'inline-block', 'marginLeft': '5px'}}
-              onClick={() => selectComputer(elem.id)}>{elem.id}: {elem.name}</p> 
+              onClick={() => selectComputer(elem.id)}
+            >{elem.id}: {elem.name}</p> 
           
         </li>
       )
@@ -49,8 +50,8 @@ class AssetsList extends Component {
           /> 
 
           <p style={{'display': 'inline-block', 'marginLeft': '5px'}} 
-            onClick={() => selectPhone(elem.id)}>
-            {elem.id}: {elem.name}  
+            onClick={() => selectPhone(elem.id)}
+          >{elem.id}: {elem.name}  
           </p>    
           
         </li>
