@@ -155,9 +155,20 @@ class Glpi10Service {
   getAllPhonesList = async (st, glpiAuthConfig) => {
     const res = await this.getRes(`Phone?expand_dropdowns=true&range=0-500`, st, glpiAuthConfig)
     const data = await res.json()
+    console.log(data)
     return {
       aceptRange: res.headers.get('Accept-Range').split(' ')[1],
       contentTotalCount: res.headers.get('Content-Range').split('/')[1],
+      data: data
+    }
+  }
+
+  getAllTypeDevList = async (devType) => {
+    const res = await fetch(`${this.django_portal_API_BASE}get_devices/`, {
+      headers: {'Type': devType}
+    })
+    const data = await res.json()
+    return {
       data: data
     }
   }

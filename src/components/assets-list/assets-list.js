@@ -5,6 +5,7 @@ class AssetsList extends Component {
   state = {
     computerBtnIsCollapsed: true,
     PhoneBtnIsCollapsed: true,
+    networkDevBtnIsCollapsed: true,
   }
 
   openAccordionItem = (func, type) => {
@@ -20,10 +21,16 @@ class AssetsList extends Component {
       }))      
     }
 
+    else if (type == 'NetworkDev'){
+      this.setState(state => ({
+        networkDevBtnIsCollapsed: !state.networkDevBtnIsCollapsed
+      }))      
+    }
+
   }
 
   render() {
-    const {getAllComputersList, getAllPhonesList, selectPhone, selectComputer, allComputerList, allPhonesList, setSelectedComputerId, setSelectedPhoneId} = this.props
+    const {getAllNetworkDevList, getAllComputersList, getAllPhonesList, selectNetworkDev, selectPhone, selectComputer,allNetworkDevList, allComputerList, allPhonesList, setSelectedComputerId, setSelectedPhoneId} = this.props
 
     const elementsComputers = allComputerList.map(elem => {
       return (
@@ -51,6 +58,23 @@ class AssetsList extends Component {
 
           <p style={{'display': 'inline-block', 'marginLeft': '5px'}} 
             onClick={() => selectPhone(elem.id)}
+          >{elem.id}: {elem.name}  
+          </p>    
+          
+        </li>
+      )
+    })
+
+    const elementsNetworkDev = allNetworkDevList.map(elem => {
+      return (
+        <li key={elem.id} style={{'listStyleType': 'none'}}>
+          <input
+              type="checkbox"
+              onChange={(e) => setSelectedPhoneId(e.target.checked, elem.id)}
+          /> 
+
+          <p style={{'display': 'inline-block', 'marginLeft': '5px'}} 
+            onClick={() => selectNetworkDev(elem.id)}
           >{elem.id}: {elem.name}  
           </p>    
           
@@ -109,13 +133,22 @@ class AssetsList extends Component {
 
         <div className="accordion-item">
           <h2 className="accordion-header" id="panelsStayOpen-headingThree">
-            <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false" aria-controls="panelsStayOpen-collapseThree">
+            <button
+              onClick={this.state.networkDevBtnIsCollapsed?
+                () => this.openAccordionItem(getAllNetworkDevList, 'NetworkDev') : null}
+              className="accordion-button collapsed"
+              type="button" data-bs-toggle="collapse"
+              data-bs-target="#panelsStayOpen-collapseThree"
+              aria-expanded="false" 
+              aria-controls="panelsStayOpen-collapseThree"
+              
+              >
               Сетевые устройства
             </button>
           </h2>
           <div id="panelsStayOpen-collapseThree" className="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingThree">
             <div className="accordion-body">
-            Сетевые устройства list
+                {elementsNetworkDev}
             </div>
           </div>
         </div>

@@ -6,11 +6,13 @@ let state = {
       computerList: [],
       allPhonesList: [],
       allComputerList: [],
+      allNetworkDevList: [],
       loadingComputerList: false,
       // selectedComputerItems:[],
       computerListTotalCount: 0,
       allComputerListTotalCount: 0,
       allPhonesListTotalCount: 0,
+      allNetworkDevListTotalCount: 0,
     },
     // awxData: {
     //   jobTemplateList: []

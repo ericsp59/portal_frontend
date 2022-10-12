@@ -185,7 +185,23 @@ class App extends Component {
     // 
   }
 
+  selectNetworkDev= (id) => {
+    console.log(id)
+    // this.getPhoneInfoById(id)
+    this.setState({
+      app: {
+        ...this.state.app,
+        selectedNteworkDev: id,
+        selectedComputer: 0,
+        selectedPhone: 0,        
+      }
+    }) 
+    // 
+  }
 
+  getNetworkDevInfoById = async (id) => {
+    
+  }
 
   getPhoneInfoById = async (id) => {
     this.glpi10Service.getPhoneInfoById(this.state.app.glpiSessionToken, id, this.state.glpiData.glpiAuthConfig)
@@ -202,6 +218,7 @@ class App extends Component {
       })
       .then(res => {
         this.setState(state => ({
+          
             glpiData: {
             ...state.glpiData,
             selPhonesInfoList: [res]
@@ -209,6 +226,7 @@ class App extends Component {
         }))
       })
   }
+
   getCompInfoById = async (id) => {
     this.glpi10Service.getCompInfoById(this.state.app.glpiSessionToken, id, this.state.glpiData.glpiAuthConfig)
       .then(res => {
@@ -370,6 +388,20 @@ class App extends Component {
         }))
       })
   }
+
+  getAllNetworkDevList = () => {
+    this.glpi10Service.getAllTypeDevList('NETWORKING')
+      .then(res => {
+        this.setState(state => ({
+          glpiData: {
+            ...state.glpiData,
+            allNetworkDevList: [...state.glpiData.allNetworkDevList, ...res.data.data],
+            allNetworkDevListTotalCount: res.data.data.length
+          },
+        }))
+      })
+  }
+
   getAllPhonesList = () => {
     this.glpi10Service.getAllPhonesList(this.state.app.glpiSessionToken, this.state.glpiData.glpiAuthConfig)
       .then(res => {
@@ -573,7 +605,7 @@ class App extends Component {
 
     const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer,selectedPhone, glpiSessionToken, newTemplateName, baseDir} = this.state.app
     const {searchString} = this.state.search
-    const {computerList, allPhonesList, allPhonesListTotalCount, allComputerList, allComputerListTotalCount, selComputersInfoList, selPhonesInfoList, glpiAuthConfig} = this.state.glpiData
+    const {computerList, allPhonesList, allNetworkDevList, allPhonesListTotalCount, allComputerList, allComputerListTotalCount, selComputersInfoList, selPhonesInfoList, glpiAuthConfig} = this.state.glpiData
     const visibleComputerList = this.searchComp(computerList, searchString)
     const {jobTemplateList, keysList} = this.state.SemaphoreData
     const {notes} = this.state.djangoBackendData
@@ -609,15 +641,18 @@ class App extends Component {
             <div className="row"> 
               <div className="col-sm-2">
                 <AssetsList
+                  getAllNetworkDevList = {this.getAllNetworkDevList}
                   getAllComputersList={this.getAllComputersList}
                   getAllPhonesList={this.getAllPhonesList}
                   allComputerList={this.searchComp(allComputerList, searchString)}
                   allPhonesList={this.searchComp(allPhonesList, searchString)}
+                  allNetworkDevList={this.searchComp(allNetworkDevList, searchString)}
                   // allComputerList={allComputerList}
                   setSelectedComputerId={this.setSelectedComputerId}
                   setSelectedPhoneId={this.setSelectedPhoneId}
                   selectComputer = {this.selectComputer}
                   selectPhone = {this.selectPhone}
+                  selectNetworkDev = {this.selectNetworkDev}
                 />
               </div> 
 
@@ -694,7 +729,10 @@ class App extends Component {
                   </Route>
 
                   <Route exact path={`${baseDir}control-page`}>
-                    <ControlPage/>
+                    <ControlPage
+                      allComputerList = {allComputerList}
+                    
+                    />
                   </Route>
 
                   <Route exact path={`${baseDir}notes-page`}>

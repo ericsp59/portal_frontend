@@ -16,7 +16,7 @@ const MainNav = (props) => {
           className="nav-link"
           to="/inventory-page"
         >Инвентаризация</NavLink>
-        <NavLink exact className="nav-link" to={baseDir+"templates-page"}>Шаблоны baseDir</NavLink>
+        <NavLink exact className="nav-link" to={baseDir+"templates-page"}>Шаблоны</NavLink>
         <NavLink exact className="nav-link" to={baseDir+"automatization-page"}>Автоматизация</NavLink>
         <NavLink exact className="nav-link" to={baseDir+"control-page"}>Удаленное управление</NavLink>
         <NavLink exact className="nav-link" to={baseDir+"reports-page"}>Отчеты</NavLink>

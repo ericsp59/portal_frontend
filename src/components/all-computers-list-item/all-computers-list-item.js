@@ -30,7 +30,13 @@ class AllComputersListItem extends Component {
 
   render() {
     const {id, name, contact, serial,date_mod, type, manufacturer, model, os, ipAddrArr, Item_DeviceHardDrive, ipAddresses, getSerchComputerInfoById, devicenetworkcards, devicememories, deviceharddrives} = this.props
-
+    let newIpAddrArr = []
+    if (typeof(ipAddrArr) == 'string') {
+      newIpAddrArr.push(ipAddrArr)
+    } else {
+      newIpAddrArr = ipAddrArr
+    }
+    console.log(newIpAddrArr)
     if (this.props.Manufacturer != "underfined") {
         // console.log(this.props)
     }
@@ -50,7 +56,8 @@ class AllComputersListItem extends Component {
               <p className="card-text"><b>Дата изменения: </b> {date_mod}</p>
               <p className="card-text"><b>ОС: </b>{os} </p>
               <p className="card-text"><b>ОЗУ: </b>{devicememories} MB</p>
-              <p className="card-text"><b>IP: </b>{ipAddrArr?ipAddrArr.map(el => `${el}, `):''} </p>
+              {/* <p className="card-text"><b>IP: </b>{ipAddrArr}, </p> */}
+              <p className="card-text"><b>IP: </b>{newIpAddrArr?newIpAddrArr.map(el => `${el}, `):''} </p>
           </div>
         </div>
         </div>

@@ -117,7 +117,7 @@ class InventoryPage extends Component {
       
     return (
       <>
-        {this.state.computersInfoListIsLoaded ? elements : 'LOADING'}
+        {this.state.computersInfoListIsLoaded ? elements : 'Select object'}
       </>
     )
   }
