@@ -618,9 +618,12 @@ class App extends Component {
           <div className="container-fluid">
             <div className="row">
               <div className="col-sm-12">
-                <AppInfo/>
-                {this.context.user ? (<Link to='/logout' onClick={this.context.djangoLogoutUser}>Выйти</Link>) : (<Link to='/login'>Войти</Link>)}
-                <h4>Hello, {this.context.user}!</h4>
+                <AppInfo
+                  user = {this.context.user}
+                  djangoLogoutUser = {this.context.djangoLogoutUser}
+                />
+                {/* {this.context.user ? (<Link to='/logout' onClick={this.context.djangoLogoutUser}>Выйти</Link>) : (<Link to='/login'>Войти</Link>)}
+                <h4>Hello, {this.context.user}!</h4> */}
               </div>
             </div>
             <div className="row">

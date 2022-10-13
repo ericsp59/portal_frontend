@@ -164,8 +164,12 @@ class Glpi10Service {
   }
 
   getAllTypeDevList = async (devType) => {
+    const myHeaders = new Headers();
+    myHeaders.append('Type', devType);
     const res = await fetch(`${this.django_portal_API_BASE}get_devices/`, {
-      headers: {'Type': devType}
+      method: 'GET',
+      headers: myHeaders,
+      mode: 'cors' //'same-origin'
     })
     const data = await res.json()
     return {
