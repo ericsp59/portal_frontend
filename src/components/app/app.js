@@ -186,8 +186,7 @@ class App extends Component {
   }
 
   selectNetworkDev= (id) => {
-    console.log(id)
-    // this.getPhoneInfoById(id)
+    this.getNetworkDevInfoById(id)
     this.setState({
       app: {
         ...this.state.app,
@@ -200,55 +199,92 @@ class App extends Component {
   }
 
   getNetworkDevInfoById = async (id) => {
-    
+    this.glpi10Service.getNetworkDevInfoById(id)
+    .then(res => {
+      this.setState(state => ({
+          glpiData: {
+          ...state.glpiData,
+          selDeviceInfoList: [res.data.data]
+          }
+      }))
+    })
   }
+
+// ####################
 
   getPhoneInfoById = async (id) => {
-    this.glpi10Service.getPhoneInfoById(this.state.app.glpiSessionToken, id, this.state.glpiData.glpiAuthConfig)
-      .then(res => {
-        res.links.forEach(elem => {
-          this.glpi10Service.getResFromLink(this.state.app.glpiSessionToken, elem.href, this.state.glpiData.glpiAuthConfig)
-            .then(reslinksData => {
-                res[elem.rel] = [reslinksData]
-            })
-        });
-        // res['linksData'] = linksData
-        // console.log(res)
-        return res
-      })
-      .then(res => {
-        this.setState(state => ({
-          
-            glpiData: {
-            ...state.glpiData,
-            selPhonesInfoList: [res]
-            }
-        }))
-      })
+    this.glpi10Service.getPhoneInfoById(id)
+    .then(res => {
+      this.setState(state => ({
+          glpiData: {
+          ...state.glpiData,
+          selDeviceInfoList: [res.data.data]
+          }
+      }))
+    })
   }
 
+  // getPhoneInfoById = async (id) => {
+  //   this.glpi10Service.getPhoneInfoById(this.state.app.glpiSessionToken, id, this.state.glpiData.glpiAuthConfig)
+  //     .then(res => {
+  //       res.links.forEach(elem => {
+  //         this.glpi10Service.getResFromLink(this.state.app.glpiSessionToken, elem.href, this.state.glpiData.glpiAuthConfig)
+  //           .then(reslinksData => {
+  //               res[elem.rel] = [reslinksData]
+  //           })
+  //       });
+  //       return res
+  //     })
+  //     .then(res => {
+  //       this.setState(state => ({
+          
+  //           glpiData: {
+  //           ...state.glpiData,
+  //           selPhonesInfoList: [res]
+  //           }
+  //       }))
+  //     })
+  // }
+
+// ####################
+
   getCompInfoById = async (id) => {
-    this.glpi10Service.getCompInfoById(this.state.app.glpiSessionToken, id, this.state.glpiData.glpiAuthConfig)
-      .then(res => {
-        res.links.forEach(elem => {
-          this.glpi10Service.getResFromLink(this.state.app.glpiSessionToken, elem.href, this.state.glpiData.glpiAuthConfig)
-            .then(reslinksData => {
-                res[elem.rel] = [reslinksData]
-            })
-        });
-        // res['linksData'] = linksData
-        // console.log(res)
-        return res
-      })
-      .then(res => {
-        this.setState(state => ({
-            glpiData: {
-            ...state.glpiData,
-            selComputersInfoList: [res]
-            }
-        }))
-      })
+    this.glpi10Service.getCompInfoById(id)
+    .then(res => {
+      this.setState(state => ({
+          glpiData: {
+          ...state.glpiData,
+          selDeviceInfoList: [res.data.data]
+          }
+      }))
+    })
   }
+
+  // getCompInfoById = async (id) => {
+  //   this.glpi10Service.getCompInfoById(this.state.app.glpiSessionToken, id, this.state.glpiData.glpiAuthConfig)
+  //     .then(res => {
+  //       res.links.forEach(elem => {
+  //         this.glpi10Service.getResFromLink(this.state.app.glpiSessionToken, elem.href, this.state.glpiData.glpiAuthConfig)
+  //           .then(reslinksData => {
+  //               res[elem.rel] = [reslinksData]
+  //           })
+  //       });
+  //       // res['linksData'] = linksData
+  //       // console.log(res)
+  //       return res
+  //     })
+  //     .then(res => {
+  //       this.setState(state => ({
+  //           glpiData: {
+  //           ...state.glpiData,
+  //           selComputersInfoList: [res]
+
+  //           }
+  //       }))
+  //     })
+  // }
+
+  // #############################################
 
   getComputerIpArr = async (id) => {
     return await this.glpi10Service.getComputerIpArr(this.state.app.glpiSessionToken,id, this.state.glpiData.glpiAuthConfig)
@@ -376,8 +412,20 @@ class App extends Component {
     }
   }
 
+  // getAllComputersList = () => {
+  //   this.glpi10Service.getAllComputersList(this.state.app.glpiSessionToken, this.state.glpiData.glpiAuthConfig)
+  //     .then(res => {
+  //       this.setState(state => ({
+  //         glpiData: {
+  //           ...state.glpiData,
+  //           allComputerList: [...state.glpiData.allComputerList, ...res.data],
+  //           allComputerListTotalCount: res.contentTotalCount
+  //         },
+  //       }))
+  //     })
+  // }
   getAllComputersList = () => {
-    this.glpi10Service.getAllComputersList(this.state.app.glpiSessionToken, this.state.glpiData.glpiAuthConfig)
+    this.glpi10Service.getAllTypeDevList('COMPUTERS')
       .then(res => {
         this.setState(state => ({
           glpiData: {
@@ -395,15 +443,15 @@ class App extends Component {
         this.setState(state => ({
           glpiData: {
             ...state.glpiData,
-            allNetworkDevList: [...state.glpiData.allNetworkDevList, ...res.data.data],
-            allNetworkDevListTotalCount: res.data.data.length
+            allNetworkDevList: [...state.glpiData.allNetworkDevList, ...res.data],
+            allNetworkDevListTotalCount: res.data.length
           },
         }))
       })
   }
 
   getAllPhonesList = () => {
-    this.glpi10Service.getAllPhonesList(this.state.app.glpiSessionToken, this.state.glpiData.glpiAuthConfig)
+    this.glpi10Service.getAllTypeDevList('PHONES')
       .then(res => {
         this.setState(state => ({
           glpiData: {
@@ -414,6 +462,18 @@ class App extends Component {
         }))
       })
   }
+  // getAllPhonesList = () => {
+  //   this.glpi10Service.getAllPhonesList(this.state.app.glpiSessionToken, this.state.glpiData.glpiAuthConfig)
+  //     .then(res => {
+  //       this.setState(state => ({
+  //         glpiData: {
+  //           ...state.glpiData,
+  //           allPhonesList: [...state.glpiData.allPhonesList, ...res.data],
+  //           allPhonesListTotalCount: res.contentTotalCount
+  //         },
+  //       }))
+  //     })
+  // }
 
   loadMore = () => {
     const {computersRangeFrom, computersRangeTo} = this.state.app
@@ -603,9 +663,9 @@ class App extends Component {
     // const user = this.context
     // console.log(user)
 
-    const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer,selectedPhone, glpiSessionToken, newTemplateName, baseDir} = this.state.app
+    const {loading, isError, selectedTemplatesIds,selectedComputerIds,selectedComputer,selectedPhone, selectedNteworkDev, glpiSessionToken, newTemplateName, baseDir} = this.state.app
     const {searchString} = this.state.search
-    const {computerList, allPhonesList, allNetworkDevList, allPhonesListTotalCount, allComputerList, allComputerListTotalCount, selComputersInfoList, selPhonesInfoList, glpiAuthConfig} = this.state.glpiData
+    const {computerList, allPhonesList, allNetworkDevList, allPhonesListTotalCount, allComputerList, allComputerListTotalCount, selComputersInfoList, selDeviceInfoList, selPhonesInfoList, glpiAuthConfig} = this.state.glpiData
     const visibleComputerList = this.searchComp(computerList, searchString)
     const {jobTemplateList, keysList} = this.state.SemaphoreData
     const {notes} = this.state.djangoBackendData
@@ -692,8 +752,10 @@ class App extends Component {
                       // selectedComputerIds = {selectedComputerIds}
                       selectedComputer = {selectedComputer}
                       selectedPhone = {selectedPhone}
+                      selectedNteworkDev = {selectedNteworkDev}
                       selComputersInfoList = {selComputersInfoList}
                       selPhonesInfoList = {selPhonesInfoList}
+                      selDeviceInfoList = {selDeviceInfoList}
                       getComputerIpArr = {this.getComputerIpArr}
                       st = {glpiSessionToken}
                       glpiAuthConfig = {glpiAuthConfig}

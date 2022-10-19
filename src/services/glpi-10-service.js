@@ -121,47 +121,50 @@ class Glpi10Service {
   }
 
 
-  getSerchComputerInfoById = async (st, id, glpiAuthConfig) => {
-    const res = await this.getRes(`search/Computer?
-      criteria[0][link]=AND&criteria[0][field]=126&criteria[0][searchtype]=contains&criteria[0][value]=&
-      criteria[1][link]=AND&criteria[1][field]=2&criteria[1][searchtype]=contains&criteria[1][value]=${id}&
-      criteria[2][link]=AND&criteria[2][field]=7&criteria[2][searchtype]=contains&criteria[2][value]=&
-      criteria[3][field]=3&criteria[3][searchtype]=contains&criteria[3][value]=&
-      criteria[4][field]=40&criteria[4][searchtype]=contains&criteria[4][value]=&
-      criteria[5][field]=111&criteria[5][searchtype]=contains&criteria[5][value]=&
-      criteria[6][field]=115&criteria[6][searchtype]=contains&criteria[6][value]=&`, st, glpiAuthConfig)
-      const data = await res.json()
-      return data
-    }
+  // getSerchComputerInfoById = async (st, id, glpiAuthConfig) => {
+  //   const res = await this.getRes(`search/Computer?
+  //     criteria[0][link]=AND&criteria[0][field]=126&criteria[0][searchtype]=contains&criteria[0][value]=&
+  //     criteria[1][link]=AND&criteria[1][field]=2&criteria[1][searchtype]=contains&criteria[1][value]=${id}&
+  //     criteria[2][link]=AND&criteria[2][field]=7&criteria[2][searchtype]=contains&criteria[2][value]=&
+  //     criteria[3][field]=3&criteria[3][searchtype]=contains&criteria[3][value]=&
+  //     criteria[4][field]=40&criteria[4][searchtype]=contains&criteria[4][value]=&
+  //     criteria[5][field]=111&criteria[5][searchtype]=contains&criteria[5][value]=&
+  //     criteria[6][field]=115&criteria[6][searchtype]=contains&criteria[6][value]=&`, st, glpiAuthConfig)
+  //     const data = await res.json()
+  //     return data
+  //   }
     
-    getSerchPhoneInfoById = async (st, id, glpiAuthConfig) => {
-    const res = await this.getRes(`search/Phone?
-      criteria[0][link]=AND&criteria[0][field]=2&criteria[0][searchtype]=contains&criteria[0][value]=${id}&
-      criteria[1][field]=5&criteria[1][searchtype]=contains&criteria[1][value]=&`, st, glpiAuthConfig)  
-    const data = await res.json()
-    return data
-    }
+    // getSerchPhoneInfoById = async (st, id, glpiAuthConfig) => {
+    // const res = await this.getRes(`search/Phone?
+    //   criteria[0][link]=AND&criteria[0][field]=2&criteria[0][searchtype]=contains&criteria[0][value]=${id}&
+    //   criteria[1][field]=5&criteria[1][searchtype]=contains&criteria[1][value]=&`, st, glpiAuthConfig)  
+    // const data = await res.json()
+    // return data
+    // }
   
 
-  getAllComputersList = async (st, glpiAuthConfig) => {
-    const res = await this.getRes(`Computer?expand_dropdowns=true&range=0-500`, st, glpiAuthConfig)
-    const data = await res.json()
-    return {
-      aceptRange: res.headers.get('Accept-Range').split(' ')[1],
-      contentTotalCount: res.headers.get('Content-Range').split('/')[1],
-      data: data
-    }
-  }
-  getAllPhonesList = async (st, glpiAuthConfig) => {
-    const res = await this.getRes(`Phone?expand_dropdowns=true&range=0-500`, st, glpiAuthConfig)
-    const data = await res.json()
-    console.log(data)
-    return {
-      aceptRange: res.headers.get('Accept-Range').split(' ')[1],
-      contentTotalCount: res.headers.get('Content-Range').split('/')[1],
-      data: data
-    }
-  }
+  // getAllComputersList = async (st, glpiAuthConfig) => {
+  //   const res = await this.getRes(`Computer?expand_dropdowns=true&range=0-500`, st, glpiAuthConfig)
+  //   const data = await res.json()
+  //   console.log(data)
+  //   return {
+  //     aceptRange: res.headers.get('Accept-Range').split(' ')[1],
+  //     contentTotalCount: res.headers.get('Content-Range').split('/')[1],
+  //     data: data
+  //   }
+  // }
+
+
+
+  // getAllPhonesList = async (st, glpiAuthConfig) => {
+  //   const res = await this.getRes(`Phone?expand_dropdowns=true&range=0-500`, st, glpiAuthConfig)
+  //   const data = await res.json()
+  //   return {
+  //     aceptRange: res.headers.get('Accept-Range').split(' ')[1],
+  //     contentTotalCount: res.headers.get('Content-Range').split('/')[1],
+  //     data: data
+  //   }
+  // }
 
   getAllTypeDevList = async (devType) => {
     const myHeaders = new Headers();
@@ -173,29 +176,74 @@ class Glpi10Service {
     })
     const data = await res.json()
     return {
-      data: data
+      data: data.data
     }
   }
 
-
-  getPhoneInfoById= async (st, id, glpiAuthConfig) => {
+  getNetworkDevInfoById = async (id) => {
     if (id != null){
-      const res = await this.getOneRes(`Phone/${id}`,st, glpiAuthConfig) 
-      return res
-    }
-  }
-  getCompInfoById= async (st, id, glpiAuthConfig) => {
-    if (id != null){
-      const res = await this.getOneRes(`Computer/${id}`,st, glpiAuthConfig) 
-      return res
+      const res = await fetch(`${this.django_portal_API_BASE}get_net_device_info_by_id/`, {
+        method: 'GET',
+        headers: {'ID': id},
+        mode: 'cors' //'same-origin'
+      })
+      const data = await res.json()
+      return {
+        data: data
+      }
     }
   }
 
-  getResFromLink = async (st, link, glpiAuthConfig) => {
-    const new_link = link.replace(glpiAuthConfig.glpi_api_url, '')
-    const res = await this.getOneRes(`${new_link}`, st, glpiAuthConfig)
-    return res
+  // ######################### get_phone_info_by_id
+  getPhoneInfoById = async (id) => {
+    if (id != null){
+      const res = await fetch(`${this.django_portal_API_BASE}get_phone_info_by_id/`, {
+        method: 'GET',
+        headers: {'ID': id},
+        mode: 'cors' //'same-origin'
+      })
+      const data = await res.json()
+      return {
+        data: data
+      }
+    }
   }
+
+  // getPhoneInfoById= async (st, id, glpiAuthConfig) => {
+  //   if (id != null){
+  //     const res = await this.getOneRes(`Phone/${id}`,st, glpiAuthConfig) 
+  //     return res
+  //   }
+  // }
+
+  // ########################### get_computer_info_by_id/
+  getCompInfoById = async (id) => {
+    if (id != null){
+      const res = await fetch(`${this.django_portal_API_BASE}get_computer_info_by_id/`, {
+        method: 'GET',
+        headers: {'ID': id},
+        mode: 'cors' //'same-origin'
+      })
+      const data = await res.json()
+      return {
+        data: data
+      }
+    }
+  }
+  // getCompInfoById= async (st, id, glpiAuthConfig) => {
+  //   if (id != null){
+  //     const res = await this.getOneRes(`Computer/${id}`,st, glpiAuthConfig) 
+  //     return res
+  //   }
+  // }
+
+  // #############################
+
+  // getResFromLink = async (st, link, glpiAuthConfig) => {
+  //   const new_link = link.replace(glpiAuthConfig.glpi_api_url, '')
+  //   const res = await this.getOneRes(`${new_link}`, st, glpiAuthConfig)
+  //   return res
+  // }
 }
 
 export default Glpi10Service

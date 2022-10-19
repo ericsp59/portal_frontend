@@ -3,6 +3,8 @@ let state = {
       glpiAuthConfig: {},
       selComputersInfoList: [],
       selPhonesInfoList: [],
+      selNetDevInfoList: [],
+      selDeviceInfoList: [],
       computerList: [],
       allPhonesList: [],
       allComputerList: [],

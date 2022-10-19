@@ -19,7 +19,7 @@ class DjangoPortalService {
   //       'password': e.target.password.value,
   //     })
   //   })
-    
+
   //   if (res.status === 200) {
   //     return await res.json()
   //   }
@@ -45,7 +45,7 @@ class DjangoPortalService {
     // }
 
   }
-  
+
   getResource = async (url) => {
     let res = await fetch(url)
     if (!res.ok) {
@@ -58,14 +58,14 @@ class DjangoPortalService {
     // http://127.0.0.1:8000/api/v1/add_playbook/
     let res = await fetch(`${_API_BASE}add_playbook/`, {
       method: 'POST',
+      mode:'cors',
       headers: {
-        // 'mode':'no-cors',
         'Content-Disposition': `attachment; filename=${file.name}`,
         // 'Content-Disposition': 'attachment; filename=upload.txt',
         // 'Content-Type': 'text/plain; charset=utf-8'
       },
       // body: data
-      body:  file,
+      body: file,
     })
     return await res.json()
   }
@@ -73,8 +73,8 @@ class DjangoPortalService {
   addRunTemplateJobToLogs = async (job_template_name, job_template_keys) => {
     await fetch(`${_API_BASE}log_list/`, {
       method: 'POST',
+      mode: 'cors',
       headers: {
-        // 'mode':'no-cors',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({

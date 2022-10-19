@@ -3,126 +3,126 @@ import Glpi10Service from '../../../services/glpi-10-service'
 import AllComputersListItem from '../../all-computers-list-item/all-computers-list-item'
 
 
-class InventoryPage extends Component {
-
-  constructor(props) {
-    super(props)
-    // this.getCompInfoById(this.props.selectedComputer)
-  }
-
-  state = {
-    selComputersInfoList: [],
-    computersInfoListIsLoaded: false,
-    ipAddresses: []
-  }
-
-  glpi10Service = new Glpi10Service()
-
-  // getCompInfoById = (id) => {
-  //   // this.props.getComputerIpArr(id)
-  //   //   .then(res => {
-  //   //     this.setState(state => ({
-  //   //       ...state,
-  //   //       ipAddresses: res
-  //   //     }))
-  //   //   })  
+const InventoryPage = (props) => {
+  const {selDeviceInfoList, selectedComputer, selectedPhone, selectedNteworkDev} = props
 
 
-  //   this.glpi10Service.getCompInfoById(id)
-  //     .then(async res => {
-  //       for (const elem of res.links) {
-  //         await this.glpi10Service.getResFromLink(this.props.st, elem.href)
-  //           .then(reslinksData => {
-  //             // if (reslinksData.length > 0){
-  //               // console.log(reslinksData)
-  //               res[elem.rel] = [reslinksData]
-  //             // } 
-  //           })
-  //       }
-  //       // console.log(res)
-  //       return res
-  //     })
-  //     .then(res => {
-  //       // console.log(res)
-  //       this.setState(state => ({
-  //         ...state,
-  //         selComputersInfoList: [res],
-  //         computersInfoListIsLoaded: true
-  //       }), () => console.log(this.state.selComputersInfoList))
-  //     })
-  // }
+  // console.log(selDeviceInfoList)
+  const elems = selDeviceInfoList.map(el => {
+      let keyNames = []
+      for (const keyName in el) {
+        keyNames.push(keyName)
+      }    
+      let a = keyNames.map(x => {
+        if (typeof(el[x]) == 'object'){
+          let i = 0
+          if (el[x] !== null){
+            let values = el[x].map(value => {
+              i ++
+              return <span key={i}>{value}, </span>
+            })
+            
+            return <p key={x}><b>{x}: </b>{values}</p>
+          }
 
-  getSerchComputerInfoById = (id) => {
-
-    this.glpi10Service.getSerchComputerInfoById(this.props.st, id, this.props.glpiAuthConfig)
-      .then(res => {
-        let arr = res.data.map(el => this.glpi10Service.renameObjKeys(el))
-        if (arr.length > 0) {
-          // console.log(arr)
-          // return arr
-          this.setState(state => ({
-            ...state,
-            selComputersInfoList: arr,
-            computersInfoListIsLoaded: true
-          }))
         }
-
+        return <p key={x}><b>{x}: </b>{el[x]}</p>
       })
-  }
-  getSerchPhoneInfoById = (id) => {
-    this.glpi10Service.getSerchPhoneInfoById(this.props.st, id, this.props.glpiAuthConfig)
-      .then(res => {
-        let arr = res.data.map(el => this.glpi10Service.renameObjKeys(el))
-        if (arr.length > 0) {
-          // console.log(arr)
-          // return arr
-          this.setState(state => ({
-            ...state,
-            selComputersInfoList: arr,
-            computersInfoListIsLoaded: true
-          }))
-        }
+      return (
+        <li key={el.id}>
+          {a}
+        </li>
+      )
+  });
 
-      })
-  }
 
-  componentDidMount(){
-    // this.getSerchComputerInfoById(this.props.selectedComputer)
-  }
+  return(
+    <>
+      <h3>Inventory page</h3>
+      {elems}
+    </>
+  )  
+}
 
-  componentDidUpdate(prevProps, prevState){
-    if (prevProps.selectedComputer !== this.props.selectedComputer && this.props.selectedComputer !==0) {
-      // this.getCompInfoById(this.props.selectedComputer)
-      this.getSerchComputerInfoById(this.props.selectedComputer)
-    }
-    if (prevProps.selectedPhone !== this.props.selectedPhone && this.props.selectedPhone !==0) {
-      // this.getCompInfoById(this.props.selectedComputer)
-      this.getSerchPhoneInfoById(this.props.selectedPhone)
-    }
-  }
+
+// class InventoryPage extends Component {
+//   constructor(props) {
+//     super(props)
+//   }
+
+//   state = {
+//     selComputersInfoList: [],
+//     computersInfoListIsLoaded: false,
+//     ipAddresses: []
+//   }
+
+//   glpi10Service = new Glpi10Service()
+
+//   getSerchComputerInfoById = (id) => {
+
+//     this.glpi10Service.getSerchComputerInfoById(this.props.st, id, this.props.glpiAuthConfig)
+//       .then(res => {
+//         let arr = res.data.map(el => this.glpi10Service.renameObjKeys(el))
+//         if (arr.length > 0) {
+//           this.setState(state => ({
+//             ...state,
+//             selComputersInfoList: arr,
+//             computersInfoListIsLoaded: true
+//           }))
+//         }
+
+//       })
+//   }
+//   getSerchPhoneInfoById = (id) => {
+//     this.glpi10Service.getSerchPhoneInfoById(this.props.st, id, this.props.glpiAuthConfig)
+//       .then(res => {
+//         let arr = res.data.map(el => this.glpi10Service.renameObjKeys(el))
+//         if (arr.length > 0) {
+//           this.setState(state => ({
+//             ...state,
+//             selComputersInfoList: arr,
+//             computersInfoListIsLoaded: true
+//           }))
+//         }
+
+//       })
+//   }
+
+//   componentDidMount(){
+//   }
+
+//   componentDidUpdate(prevProps, prevState){
+//     if (prevProps.selectedComputer !== this.props.selectedComputer && this.props.selectedComputer !==0) {
+//       this.getSerchComputerInfoById(this.props.selectedComputer)
+//     }
+//     if (prevProps.selectedPhone !== this.props.selectedPhone && this.props.selectedPhone !==0) {
+//       this.getSerchPhoneInfoById(this.props.selectedPhone)
+//     }
+//   }
   
-  render() {
-      const elements = this.state.selComputersInfoList.map(elem => {
-        const {...itemProps} = elem
-        return (
-          <div className="allComputersListItem" key={elem.id}>
-            <AllComputersListItem
-              {...itemProps}
-              computersInfoListIsLoaded = {this.state.computersInfoListIsLoaded}
-            /> 
-          </div>
-
-        )
-      })
+//   render() {
       
-    return (
-      <>
-        {this.state.computersInfoListIsLoaded ? elements : 'Select object'}
-      </>
-    )
-  }
-}  
+//       const elements = this.state.selComputersInfoList.map(elem => {
+//         const {...itemProps} = elem
+//         return (
+//           <div className="allComputersListItem" key={elem.id}>
+//             <AllComputersListItem
+//               {...itemProps}
+//               computersInfoListIsLoaded = {this.state.computersInfoListIsLoaded}
+//             /> 
+//           </div>
 
+//         )
+//       })
+      
+//     return (
+      
+//       <>
+//         {this.state.computersInfoListIsLoaded ? elements : 'Select object'}
+//       </>
+//     )
+//   }
+// }  
 
 
 export default InventoryPage
