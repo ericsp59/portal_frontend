@@ -41,6 +41,7 @@ let state = {
       glpiInventory: {},
       selectedComputerIds: [],
       selectedPhoneIds: [],
+      selectedNetDevIds: [],
       selectedTemplatesIds: [],
       selectedKeysIds: [],
       loading: true,

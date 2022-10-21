@@ -30,7 +30,7 @@ class AssetsList extends Component {
   }
 
   render() {
-    const {getAllNetworkDevList, getAllComputersList, getAllPhonesList, selectNetworkDev, selectPhone, selectComputer,allNetworkDevList, allComputerList, allPhonesList, setSelectedComputerId, setSelectedPhoneId} = this.props
+    const {getAllNetworkDevList, getAllComputersList, getAllPhonesList, selectNetworkDev, selectPhone, selectComputer,allNetworkDevList, allComputerList, allPhonesList, setSelectedComputerId, setSelectedPhoneId, setSelectedNetDevId} = this.props
 
     const elementsComputers = allComputerList.map(elem => {
       return (
@@ -70,7 +70,7 @@ class AssetsList extends Component {
         <li key={elem.id} style={{'listStyleType': 'none'}}>
           <input
               type="checkbox"
-              onChange={(e) => setSelectedPhoneId(e.target.checked, elem.id)}
+              onChange={(e) => setSelectedNetDevId(e.target.checked, elem.id)}
           /> 
 
           <p style={{'display': 'inline-block', 'marginLeft': '5px'}} 

@@ -133,7 +133,6 @@ class App extends Component {
   }
 
   changeSelectedPlaybookFile = (file) => {
-    // console.log(file)
     this.setState({
       app: {
         ...this.state.app,
@@ -149,15 +148,10 @@ class App extends Component {
         this.semaforeService.createSemaphoreTemplate(this.state.SemaphoreData.semaphoreAuthConfig, this.state.app.newTemplateName, res.name)
           .then(res => {
             this.getSemaforeTemplateList(this.state.SemaphoreData.semaphoreAuthConfig)
-            // console.log(res)
           })
       }
-      // console.log(res)
-      // console.log(this.state.app)
      })
   }
-
-  
 
 
   selectComputer = (id) => {
@@ -210,8 +204,6 @@ class App extends Component {
     })
   }
 
-// ####################
-
   getPhoneInfoById = async (id) => {
     this.glpi10Service.getPhoneInfoById(id)
     .then(res => {
@@ -223,30 +215,6 @@ class App extends Component {
       }))
     })
   }
-
-  // getPhoneInfoById = async (id) => {
-  //   this.glpi10Service.getPhoneInfoById(this.state.app.glpiSessionToken, id, this.state.glpiData.glpiAuthConfig)
-  //     .then(res => {
-  //       res.links.forEach(elem => {
-  //         this.glpi10Service.getResFromLink(this.state.app.glpiSessionToken, elem.href, this.state.glpiData.glpiAuthConfig)
-  //           .then(reslinksData => {
-  //               res[elem.rel] = [reslinksData]
-  //           })
-  //       });
-  //       return res
-  //     })
-  //     .then(res => {
-  //       this.setState(state => ({
-          
-  //           glpiData: {
-  //           ...state.glpiData,
-  //           selPhonesInfoList: [res]
-  //           }
-  //       }))
-  //     })
-  // }
-
-// ####################
 
   getCompInfoById = async (id) => {
     this.glpi10Service.getCompInfoById(id)
@@ -260,70 +228,49 @@ class App extends Component {
     })
   }
 
-  // getCompInfoById = async (id) => {
-  //   this.glpi10Service.getCompInfoById(this.state.app.glpiSessionToken, id, this.state.glpiData.glpiAuthConfig)
-  //     .then(res => {
-  //       res.links.forEach(elem => {
-  //         this.glpi10Service.getResFromLink(this.state.app.glpiSessionToken, elem.href, this.state.glpiData.glpiAuthConfig)
-  //           .then(reslinksData => {
-  //               res[elem.rel] = [reslinksData]
-  //           })
-  //       });
-  //       // res['linksData'] = linksData
-  //       // console.log(res)
-  //       return res
-  //     })
-  //     .then(res => {
-  //       this.setState(state => ({
-  //           glpiData: {
-  //           ...state.glpiData,
-  //           selComputersInfoList: [res]
-
-  //           }
-  //       }))
-  //     })
-  // }
-
-  // #############################################
-
-  getComputerIpArr = async (id) => {
-    return await this.glpi10Service.getComputerIpArr(this.state.app.glpiSessionToken,id, this.state.glpiData.glpiAuthConfig)
-    .then(res => {  // Фильтруем ip адреса
-      if (res) 
-      {
-      res.forEach(el => {
-        let ipAddrs = []
-        if (typeof el.ipAddrArr === 'string') {
-          el.ipAddrArr = [el.ipAddrArr]
-        }
-        el.ipAddrArr.forEach(ip => {
-          if (ip !== '127.0.0.1' && ip.length > 7 && ip.length < 15 ) {
-            ipAddrs.push(ip)
-          }  
-        });
-        el.ipAddrArr = ipAddrs
-      });
-      // console.log(`getComputerIpArr - ${res}`)
-      return res.length > 0 ? res[0].ipAddrArr : ['']
-    }
-      
-    })
+  getDeviceIpArr = async (type, id) => {
+    return await this.glpi10Service.getDeviceIpArr(type, id)
+      .then(res => {
+        console.log(res.data)
+        return res.data
+      })
   }
 
+  
+
   runSemaphoreTemplate = async () => {
-    const {selectedComputerIds, selectedTemplatesIds, selectedKeysIds} = this.state.app
-    // console.log(selectedComputerIds, selectedTemplatesIds)
+    const {selectedComputerIds, selectedTemplatesIds, selectedPhoneIds,selectedNetDevIds, selectedKeysIds} = this.state.app
+    console.log(selectedPhoneIds)
     let ipString = ''
     for (const elem of selectedComputerIds) {
-      // console.log(elem)
-      await this.getComputerIpArr(elem)
+      await this.getDeviceIpArr('Computer', elem)
         .then(async res => {
           for (const ip of res) {
             ipString += `${ip}\n`
           }
         })
-
     }
+
+    for (const elem of selectedPhoneIds) {
+      await this.getDeviceIpArr('Phone', elem)
+        .then(async res => {
+          for (const ip of res) {
+            ipString += `${ip}\n`
+          }
+        })
+    }
+
+    for (const elem of selectedNetDevIds) {
+      await this.getDeviceIpArr('NetworkEquipment', elem)
+        .then(async res => {
+          for (const ip of res) {
+            ipString += `${ip}\n`
+          }
+        })
+    }
+
+
+
     this.semaforeService.updateSemaphoreInventory(this.state.SemaphoreData.semaphoreAuthConfig, this.state.app.glpiInventory, ipString, selectedKeysIds)
       .then(async (res) => {
         if (res.ok) {
@@ -393,6 +340,26 @@ class App extends Component {
       }))  
     }
   }
+
+  setSelectedNetDevId = (checked, id) => {
+    if (checked) {
+      this.setState(state => ({
+        app: {
+          ...this.state.app,
+          selectedNetDevIds: [...state.app.selectedNetDevIds, id]
+        }
+      }))
+    }
+    else {
+      this.setState(state => ({
+        app: {
+          ...this.state.app,
+          selectedNetDevIds: state.app.selectedNetDevIds.filter(el => el !== id)
+        }
+      }))  
+    }
+  }
+
   setSelectedComputerId = (checked, id) => {
     if (checked) {
       this.setState(state => ({
@@ -492,44 +459,6 @@ class App extends Component {
   semaforeLogin = async (res) => {
     const semaforeAuthConfig = res
     let result = await this.semaforeService.login(semaforeAuthConfig)
-      // .then(async (res) => {
-      //   if (res.ok) {
-      //     let st = await this.semaforeService.getSemaphoreUserTokens(semaforeAuthConfig)
-      //       .then(async res => {
-      //         let i = -1
-      //         for (let k = 0; k < res.length; k++) {
-      //           let token = res[k]          
-      //           if (!token.expired) {
-      //             i = k
-      //             break
-      //           }
-      //         }
-      //         if (i !== -1) {
-      //           return (res[i].id)        
-      //         }
-      //         else {
-      //           await this.semaforeService.createSemaphoreApiToken(semaforeAuthConfig)
-      //             .then(res => {
-      //               return res.id
-      //             })
-      //         }  
-      //       })
-      //       return st
-      //   }
-      //   else {
-      //     console.log('login bad')
-      //   }
-        
-      // })
-      // .then(st => {
-      //   this.setState({
-      //     app: {
-      //       ...this.state.app,
-      //       semaphoreSessionToken: st
-      //     }
-      //   })
-      //   return st
-      // })
       return semaforeAuthConfig
   }
 
@@ -713,6 +642,7 @@ class App extends Component {
                   // allComputerList={allComputerList}
                   setSelectedComputerId={this.setSelectedComputerId}
                   setSelectedPhoneId={this.setSelectedPhoneId}
+                  setSelectedNetDevId={this.setSelectedNetDevId}
                   selectComputer = {this.selectComputer}
                   selectPhone = {this.selectPhone}
                   selectNetworkDev = {this.selectNetworkDev}

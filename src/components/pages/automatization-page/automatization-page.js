@@ -1,76 +1,86 @@
 import './automatization-page.css'
 import { useState, useEffect } from 'react';
-import SemaphoreOutput from './semaphore-output/semaphore-output'
-import SemaphoreTasks from './semaphore-tasks/semaphore-tasks'
+import AutomatizationTemplatesPage from './automatization-templates-page/automatization-templates-page'
+import SemaphoreOutput from './automatization-templates-page/semaphore-output/semaphore-output'
+import SemaphoreTasks from './automatization-templates-page/semaphore-tasks/semaphore-tasks'
 import Spinner from '../../spinner/spinner'
 
 const AutomatizationPage = ({getSemaphoreTaskOutput, getSemaphoreTasks,jobTemplateList,setSelectedTemplateIds, keysList, setSelectedKeysIds, selectedTemplatesIds, runSemaphoreTemplate}) => {
 
-  const [semaphoreTasksIsloaded, setSemaphoreTasksIsloaded] = useState(false);
-  const [semaphoreTasks, setSemaphoreTasks] = useState([]);
-  const [semaphoreTaskOutput, setSemaphoreTaskOutput] = useState([]);
+  // const [semaphoreTasksIsloaded, setSemaphoreTasksIsloaded] = useState(false);
+  // const [semaphoreTasks, setSemaphoreTasks] = useState([]);
+  // const [semaphoreTaskOutput, setSemaphoreTaskOutput] = useState([]);
 
-  const getSemaphoreTaskOutput_loc = (id) => {
-    getSemaphoreTaskOutput(id)
-      .then(res => {
-        setSemaphoreTaskOutput(res)
-      })
-  }
+  // const getSemaphoreTaskOutput_loc = (id) => {
+  //   getSemaphoreTaskOutput(id)
+  //     .then(res => {
+  //       setSemaphoreTaskOutput(res)
+  //     })
+  // }
 
 
-  const runSemaphoreTemplateLoc = () => {
-    console.log(selectedTemplatesIds)
-    runSemaphoreTemplate()
-  } 
+  // const runSemaphoreTemplateLoc = () => {
+  //   console.log(selectedTemplatesIds)
+  //   runSemaphoreTemplate()
+  // } 
 
-  useEffect(() => {    
-    // console.log('useEffect') 
-    const intervalId = setInterval( () => {
-      getSemaphoreTasks()
-      .then(res => {
-        setSemaphoreTasks(res)
-        setSemaphoreTasksIsloaded(true)  
-      })
-    } 
-    , 3000)
+  // useEffect(() => {    
+  //   const intervalId = setInterval( () => {
+  //     getSemaphoreTasks()
+  //     .then(res => {
+  //       setSemaphoreTasks(res)
+  //       setSemaphoreTasksIsloaded(true)  
+  //     })
+  //   } 
+  //   , 3000)
    
-   return () => clearInterval(intervalId);
-  },[semaphoreTasks]);
+  //  return () => clearInterval(intervalId);
+  // },[semaphoreTasks]);
 
-  const keysElements = keysList.map(elem => {
-    return (
-      <li key={elem.id} style={{'listStyleType': 'none'}}>
-        <p className='p'>
-          <input
-            type="checkbox"
-            onChange={(e) => setSelectedKeysIds(e.target.checked, elem.id)}
-          /> {elem.id}: {elem.name}
-        </p>
-      </li>
-    )
-  })  
+  // const keysElements = keysList.map(elem => {
+  //   return (
+  //     <li key={elem.id} style={{'listStyleType': 'none'}}>
+  //       <p className='p'>
+  //         <input
+  //           type="checkbox"
+  //           onChange={(e) => setSelectedKeysIds(e.target.checked, elem.id)}
+  //         /> {elem.id}: {elem.name}
+  //       </p>
+  //     </li>
+  //   )
+  // })  
 
-  const elements = jobTemplateList.map(elem => {
-    return (
-      <li key={elem.id} style={{'listStyleType': 'none'}}>
+  // const elements = jobTemplateList.map(elem => {
+  //   return (
+  //     <li key={elem.id} style={{'listStyleType': 'none'}}>
         
-        <p className='p'>
-          <input
-            type="checkbox"
-            onChange={(e) => setSelectedTemplateIds(e.target.checked, elem.id)}
-          /> {elem.id}: {elem.name} 
-        </p>
-        {/* {templateIsRunning && selectedTemplatesIds.indexOf(elem.id) != -1 ? <Spinner /> : ''} */}
-      </li>
-    )
-  })
+  //       <p className='p'>
+  //         <input
+  //           type="checkbox"
+  //           onChange={(e) => setSelectedTemplateIds(e.target.checked, elem.id)}
+  //         /> {elem.id}: {elem.name} 
+  //       </p>
+  //     </li>
+  //   )
+  // })
 
   return (
     <div className='automatization-page'>
 
       <h1>Автоматизация</h1>
+
+      <AutomatizationTemplatesPage
+        getSemaphoreTaskOutput = {getSemaphoreTaskOutput}
+        getSemaphoreTasks = {getSemaphoreTasks}
+        jobTemplateList = {jobTemplateList}
+        setSelectedTemplateIds = {setSelectedTemplateIds}
+        keysList = {keysList}
+        setSelectedKeysIds = {setSelectedKeysIds}
+        selectedTemplatesIds = {selectedTemplatesIds}
+        runSemaphoreTemplate = {runSemaphoreTemplate}
+      />
       
-      <div className='row'>
+      {/* <div className='row'>
         <div className='col-sm-6'>
         <h4>Шаблоны</h4>
           {elements}
@@ -107,7 +117,7 @@ const AutomatizationPage = ({getSemaphoreTaskOutput, getSemaphoreTasks,jobTempla
           </div>
           
         </div>
-      </div>
+      </div> */}
 
     </div>
     
